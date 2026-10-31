@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>co.becreator — Produção audiovisual</title>
+    <meta name="description" content="co.becreator — filmes, clipes e campanhas. Produção audiovisual do conceito ao corte final." />
+    <meta name="theme-color" content="#0c0b09" />
+    <meta property="og:title" content="co.becreator — Produção audiovisual" />
+    <meta property="og:description" content="Filmes, clipes e campanhas. Do conceito ao corte final." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og.jpg" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/media/reel/poster.webp" as="image" />
+  </head>
+  <body>
+    <a class="skip" href="#trabalhos">Pular para os trabalhos</a>
+
+    <div class="preloader" aria-hidden="true">
+      <svg class="preloader__logo" viewBox="40 92 1956 506"><path /></svg>
+      <span class="preloader__count mono">00</span>
+    </div>
+
+    <header class="header" data-header>
+      <a href="#top" class="header__logo" aria-label="co.becreator — início">
+        <svg viewBox="40 92 1956 506" aria-hidden="true"><use href="#logo-path" /></svg>
+      </a>
+      <nav class="header__nav mono" aria-label="Seções">
+        <a href="#filmes">Filmes</a>
+        <a href="#clipes">Clipes</a>
+        <a href="#campanhas">Campanhas</a>
+        <a href="#serie">Série</a>
+        <a href="#social">Social</a>
+        <a href="#contato" class="header__cta">Contato</a>
+      </nav>
+      <button class="header__menu mono" aria-expanded="false" aria-controls="menu">Menu</button>
+    </header>
+
+    <div class="menu" id="menu" hidden>
+      <nav aria-label="Menu">
+        <a href="#filmes"><span class="mono">01</span>Filmes</a>
+        <a href="#clipes"><span class="mono">02</span>Clipes</a>
+        <a href="#campanhas"><span class="mono">03</span>Campanhas</a>
+        <a href="#serie"><span class="mono">04</span>Série</a>
+        <a href="#social"><span class="mono">05</span>Social</a>
+        <a href="#contato"><span class="mono">06</span>Contato</a>
+      </nav>
+    </div>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero" aria-label="Reel">
+        <div class="hero__media" data-cursor="Assistir reel" data-open="reel">
+          <video class="hero__video" poster="/media/reel/poster.webp" muted loop playsinline preload="none" aria-hidden="true"></video>
+          <div class="hero__shade"></div>
+        </div>
+        <div class="hero__top mono">
+          <span>Produção audiovisual</span>
+          <span class="hero__tc"><i class="rec"></i><span data-tc>00:00:00:00</span></span>
+          <span class="hide-sm">Filmes · Clipes · Campanhas</span>
+        </div>
+        <h1 class="hero__title">
+          <span class="sr-only">co.becreator</span>
+          <svg class="hero__logo" viewBox="40 92 1956 506" aria-hidden="true"><use href="#logo-path" /></svg>
+        </h1>
+        <div class="hero__bottom mono">
+          <button class="btn-play" data-open="reel"><span class="btn-play__icon" aria-hidden="true"></span>Assistir reel <span class="dim">com som</span></button>
+          <span class="dim hide-sm">Role ↓</span>
+        </div>
+      </section>
+
+      <!-- STATEMENT -->
+      <section class="statement" aria-label="Apresentação">
+        <p class="statement__text" data-lines>
+          <span class="w-wide">Do conceito</span>
+          <span class="w-cond">ao corte final.</span>
+        </p>
+        <p class="statement__aside mono">
+          Produção integral — direção de arte, imagem gerada por IA, montagem, motion e finalização. Filmes autorais, clipes e campanhas.
+        </p>
+      </section>
+
+      <div id="trabalhos"></div>
+
+      <!-- FILMES -->
+      <section class="section" id="filmes" aria-labelledby="t-filmes">
+        <header class="shead">
+          <span class="shead__n mono">(01)</span>
+          <h2 class="shead__t" id="t-filmes" data-split>Filmes</h2>
+          <span class="shead__m mono" data-count="films"></span>
+        </header>
+        <div class="films" data-films></div>
+      </section>
+
+      <!-- CLIPES -->
+      <section class="section" id="clipes" aria-labelledby="t-clipes">
+        <header class="shead">
+          <span class="shead__n mono">(02)</span>
+          <h2 class="shead__t" id="t-clipes" data-split>Clipes</h2>
+          <span class="shead__m mono" data-count="clips"></span>
+        </header>
+        <ol class="index" data-clips></ol>
+        <div class="float-preview" aria-hidden="true"><video muted loop playsinline preload="none"></video></div>
+      </section>
+
+      <!-- CAMPANHAS -->
+      <section class="section section--flush" id="campanhas" aria-labelledby="t-camp">
+        <header class="shead">
+          <span class="shead__n mono">(03)</span>
+          <h2 class="shead__t" id="t-camp" data-split>Campanhas</h2>
+          <span class="shead__m mono">Marcas · Produtos</span>
+        </header>
+        <div data-tz></div>
+        <div data-block></div>
+        <div data-lv></div>
+      </section>
+
+      <!-- SÉRIE -->
+      <section class="section" id="serie" aria-labelledby="t-serie">
+        <header class="shead">
+          <span class="shead__n mono">(04)</span>
+          <h2 class="shead__t" id="t-serie" data-split>Série</h2>
+          <span class="shead__m mono">YouTube · Formato longo</span>
+        </header>
+        <div data-series></div>
+      </section>
+
+      <!-- SOCIAL -->
+      <section class="section" id="social" aria-labelledby="t-social">
+        <header class="shead">
+          <span class="shead__n mono">(05)</span>
+          <h2 class="shead__t" id="t-social" data-split>Social</h2>
+          <span class="shead__m mono">Reels · Vertical</span>
+        </header>
+        <div data-social></div>
+      </section>
+
+      <!-- CONTATO -->
+      <section class="contact" id="contato" aria-labelledby="t-contato">
+        <h2 class="contact__label mono" id="t-contato">(06) Contato</h2>
+        <a class="contact__mail" data-mail href="#"></a>
+        <div class="contact__row mono">
+          <button class="contact__copy" data-copy>Copiar e-mail</button>
+          <a data-insta target="_blank" rel="noopener"></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer mono">
+      <span>© <span data-year></span> co.becreator</span>
+      <a href="#top">Topo ↑</a>
+    </footer>
+
+    <!-- PLAYER -->
+    <div class="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
+      <div class="player__bar mono">
+        <div>
+          <p class="player__title" id="player-title"></p>
+          <p class="player__meta dim"></p>
+        </div>
+        <div class="player__nav">
+          <button class="player__prev" aria-label="Anterior">←</button>
+          <span class="player__pos dim"></span>
+          <button class="player__next" aria-label="Próximo">→</button>
+          <button class="player__close" aria-label="Fechar">Fechar ✕</button>
+        </div>
+      </div>
+      <div class="player__stage">
+        <video class="player__video" playsinline preload="auto"></video>
+        <div class="player__embed"></div>
+      </div>
+      <div class="player__controls mono">
+        <button class="pc-play" aria-label="Pausar">Pausar</button>
+        <span class="pc-time">00:00</span>
+        <input class="pc-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Posição do vídeo" />
+        <span class="pc-dur dim">00:00</span>
+        <button class="pc-mute" aria-label="Silenciar">Som on</button>
+        <button class="pc-fs" aria-label="Tela cheia">Tela cheia</button>
+      </div>
+    </div>
+
+    <div class="flash" aria-hidden="true"></div>
+    <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__label mono"></span></div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="logo-path" fill="currentColor" fill-rule="evenodd" /></defs></svg>
+
+    <noscript><p style="padding:2rem">Este portfólio usa JavaScript para carregar os vídeos. Contato: cobecreator@gmail.com</p></noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
