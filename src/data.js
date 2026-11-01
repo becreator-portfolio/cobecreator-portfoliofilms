@@ -14,13 +14,14 @@ export const reel = {
 };
 
 // fmt: 'h' horizontal | 'v' vertical
+// Ordem pensada para o desktop: um filme em destaque e depois pares de mesma proporção.
 export const films = [
   { id: 'f-vibe', title: "Don't Kill My Vibe", fmt: 'h', ratio: '4:3' },
   { id: 'f-grandmas', title: 'Grandmas Are the Real Gangstas', fmt: 'h', ratio: '4:3' },
   { id: 'f-escravo', title: 'Escravo Moderno', fmt: 'h', ratio: '4:3' },
   { id: 'f-loydog1', title: 'Loydog — 01', fmt: 'h', ratio: '4:3' },
-  { id: 'f-drift', title: 'Drift e Tigres', fmt: 'h', ratio: '16:9' },
   { id: 'f-loydog2', title: 'Loydog — 02', fmt: 'h', ratio: '4:3' },
+  { id: 'f-drift', title: 'Drift e Tigres', fmt: 'h', ratio: '16:9' },
   { id: 'f-5sntup', title: '5SNTUP', fmt: 'h', ratio: '16:9' },
 ];
 
@@ -69,14 +70,24 @@ export const series = {
   stills: ['ep1', 'ep2', 'ep3', 'ep6', 'ep7'],
 };
 
-// Ordem pensada para o grid de 6 colunas (2+3+1 / 3+2) e de 3 colunas no tablet.
+// Ordem pensada para o grid de 6 colunas no desktop: 4+2 / 3+3.
 export const social = [
   {
-    client: 'Storytrapping × Ryu, the Runner',
-    note: 'Entrevista',
+    client: 'Storytrapping',
+    note: 'Entrevista · Storytelling',
     items: [
-      { id: 's-ryu', title: 'Entrevista' },
-      { id: 's-ryuevt', title: 'Evento Block Office & Ryu' },
+      { id: 's-ryu', title: 'Ryu, the Runner · Entrevista' },
+      { id: 's-ryuevt', title: 'Ryu, the Runner · Evento Block Office' },
+      { id: 's-xtranho', title: 'Charles Santos · Xtranho' },
+      { id: 's-lauro', title: 'Projeto Lauro' },
+    ],
+  },
+  {
+    client: 'Eduardo Cidade',
+    note: 'Imobiliário',
+    items: [
+      { id: 's-edu1', title: 'Visita de imóvel' },
+      { id: 's-edu2', title: 'Vista panorâmica' },
     ],
   },
   {
@@ -89,25 +100,12 @@ export const social = [
     ],
   },
   {
-    client: 'Charles Santos × Storytrapping',
-    note: 'Storytelling',
-    items: [{ id: 's-xtranho', title: 'Xtranho' }],
-  },
-  {
     client: 'Buffalo Boxing Club',
     note: 'Esporte',
     items: [
       { id: 's-buffalo', title: 'Horários' },
       { id: 's-buffalo-treino', title: 'Treino' },
       { id: 's-buffalo-peterson', title: 'Campeonato Gaúcho 2026' },
-    ],
-  },
-  {
-    client: 'Eduardo Cidade',
-    note: 'Imobiliário',
-    items: [
-      { id: 's-edu1', title: 'Visita de imóvel' },
-      { id: 's-edu2', title: 'Vista panorâmica' },
     ],
   },
 ];
