@@ -348,6 +348,41 @@ body::after {
 .float-preview__tc { position: absolute; left: 10px; bottom: 10px; color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
 @media (hover: none), (max-width: 860px) { .float-preview { display: none; } }
 
+/* ───────────────────────── campanhas: case (anúncio vertical + storyboard) */
+.case { padding: 0 var(--m); margin-bottom: var(--sp-sub); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--g); row-gap: 28px; }
+.case__media { grid-column: 1 / span 4; }
+.case__media .frame { aspect-ratio: 9 / 16; }
+.case__body { grid-column: 6 / -1; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+.case__head { display: flex; flex-direction: column; gap: 14px; }
+.case__line {
+  font-weight: 800; font-stretch: 82%; text-transform: uppercase;
+  font-size: var(--t-l); line-height: 0.94; letter-spacing: -0.02em; max-width: 12ch;
+}
+.case__board { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.case__board li { display: flex; flex-direction: column; gap: 8px; }
+.case__still { display: block; width: 100%; aspect-ratio: 9 / 16; overflow: hidden; background: var(--ink-2); cursor: none; transition: opacity 0.35s ease; }
+.case__still img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+@media (hover: hover) {
+  .case__board:hover .case__still { opacity: 0.45; }
+  .case__board .case__still:hover, .case__board .case__still:focus-visible { opacity: 1; }
+  .case__still:hover img { transform: scale(1.05); }
+}
+@media (min-width: 1025px) {
+  .case__media .frame { width: min(100%, calc(84svh * 9 / 16)); }
+}
+@media (max-width: 1024px) {
+  .case__media { grid-column: 1 / span 6; }
+  .case__body { grid-column: 7 / -1; }
+  .case__board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .case__media, .case__body { grid-column: 1 / -1; }
+  .case__board { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 calc(var(--m) * -1); padding: 0 var(--m) 4px; scrollbar-width: none; }
+  .case__board::-webkit-scrollbar { display: none; }
+  .case__board li { flex: 0 0 28vw; scroll-snap-align: start; scroll-margin-left: var(--m); }
+  .case__still { cursor: pointer; }
+}
+
 /* ───────────────────────── campanhas — títulos de projeto compartilham a escala L */
 .ptitle { font-weight: 900; font-stretch: 125%; text-transform: uppercase; font-size: var(--t-l); line-height: 0.96; letter-spacing: -0.03em; }
 

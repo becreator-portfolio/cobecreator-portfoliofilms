@@ -9,8 +9,8 @@ export const contact = {
 
 export const reel = {
   id: 'reel',
-  title: 'Reel 2026',
-  meta: 'Montagem com trechos do acervo · Trilha: Neumann feat. F.P.B — Tamo Competindo',
+  title: 'Comic Urban Realism',
+  meta: 'Filme autoral',
 };
 
 // fmt: 'h' horizontal | 'v' vertical
@@ -22,7 +22,7 @@ export const films = [
   { id: 'f-loydog1', title: 'Loydog — 01', fmt: 'h', ratio: '4:3' },
   { id: 'f-loydog2', title: 'Loydog — 02', fmt: 'h', ratio: '4:3' },
   { id: 'f-drift', title: 'Drift e Tigres', fmt: 'h', ratio: '16:9' },
-  { id: 'f-5sntup', title: '5SNTUP', fmt: 'h', ratio: '16:9' },
+  { id: 'f-5sntup', title: 'Escravo Moderno part. 2', fmt: 'h', ratio: '16:9' },
 ];
 
 export const clips = [
@@ -36,6 +36,21 @@ export const clips = [
 ];
 
 export const campaigns = {
+  // case de abertura da seção: anúncio vertical + storyboard (clicar num quadro abre o vídeo naquele ponto)
+  socializei: {
+    id: 'k-socializei',
+    title: 'Socializei',
+    kind: 'Anúncio',
+    line: 'A IA sugere. Você escolhe.', // frase do próprio anúncio
+    board: [
+      { img: 'still1', t: 2.8 },
+      { img: 'still2', t: 6.2 },
+      { img: 'still3', t: 9.6 },
+      { img: 'still4', t: 13.1 },
+      { img: 'still5', t: 16.6 },
+      { img: 'still6', t: 19.9 },
+    ],
+  },
   tz: { id: 'k-tz', title: 'TZ da Coronel & OÜS 18K', kind: 'Campanha' },
   block: {
     title: 'Block Office',
@@ -48,7 +63,6 @@ export const campaigns = {
       { id: 'b-5', title: 'Campanha #5', fmt: 'v' },
       { id: 'b-6', title: 'Campanha #6', fmt: 'h' },
       { id: 'b-berga', title: 'BergaOffice', fmt: 'h' },
-      { id: 'b-drop', title: 'Drop', fmt: 'h' },
     ],
   },
   lv: {

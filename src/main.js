@@ -53,7 +53,7 @@ const card = (item, opts, c, extra = '') => `<figure class="card" data-reveal ${
 const counts = {
   films: films.length,
   clips: clips.length,
-  campaigns: 1 + campaigns.block.items.length + campaigns.lv.items.length,
+  campaigns: 2 + campaigns.block.items.length + campaigns.lv.items.length,
   series: series.episodes,
   social: social.reduce((a, g) => a + g.items.length, 0),
 };
@@ -121,6 +121,29 @@ function render() {
     .join('');
   // section counts: just the number, superscript to the title
   Object.entries(counts).forEach(([k, n]) => { const el = $(`[data-count="${k}"]`); if (el) { el.textContent = pad(n); el.dataset.n = n; } });
+
+  // Socializei — case: the ad + its storyboard (each frame opens the film at that moment)
+  const sc = campaigns.socializei;
+  reg('socializei', [{ ...sc }]);
+  $('[data-case]').innerHTML = `
+    <div class="case" data-case-wrap>
+      <div class="case__media">${frame(sc, { list: 'socializei', idx: 0, ratio: '9 / 16', cls: 'frame--tc' })}</div>
+      <div class="case__body">
+        <div class="case__head">
+          <h3 class="ptitle">${sc.title}</h3>
+          <span class="mono dim">${sc.kind} · ${dur(sc.id)}</span>
+        </div>
+        <p class="case__line">${sc.line}</p>
+        <ol class="case__board" aria-label="Storyboard — ${sc.title}">
+          ${sc.board
+            .map(
+              (b) => `<li><button class="case__still" data-seek="${b.t}" data-cursor="Assistir de ${fmtTime(b.t)}" aria-label="Assistir ${sc.title} a partir de ${fmtTime(b.t)}">
+                <img src="${src(sc.id, b.img + '.webp')}" alt="" loading="lazy" decoding="async" /></button><span class="mono dim">${fmtTime(b.t)}</span></li>`
+            )
+            .join('')}
+        </ol>
+      </div>
+    </div>`;
 
   // TZ
   const tz = campaigns.tz;
@@ -419,6 +442,11 @@ const player = {
     $('.player__yt').hidden = true;
     this.v.poster = src(item.id, 'poster.webp');
     this.v.src = src(item.id, 'full.mp4');
+    if (this.seekTo) {
+      const t = this.seekTo;
+      this.v.addEventListener('loadedmetadata', () => { this.v.currentTime = t; }, { once: true });
+      this.seekTo = 0;
+    }
     this.v.muted = false;
     $('.pc-mute').textContent = 'Som on';
     this.v.play().catch(() => { this.v.muted = true; $('.pc-mute').textContent = 'Som off'; this.v.play().catch(() => {}); });
@@ -428,8 +456,9 @@ const player = {
     playing.forEach(stopPreview);
     $('.hero__video')?.pause();
   },
-  open(listKey, idx = 0, srcEl = null) {
+  open(listKey, idx = 0, srcEl = null, seek = 0) {
     this.prepare();
+    this.seekTo = seek;
     this.list = playlists[listKey];
     this.idx = idx;
     this.el.classList.remove('is-embed');
@@ -514,6 +543,8 @@ function initOpeners() {
     if (yt) return player.openEmbed(yt.classList.contains('frame') ? yt : $('.series__stage > .frame'));
     const o = e.target.closest('[data-open]');
     if (o) return player.open(o.dataset.open, 0, null);
+    const sk = e.target.closest('[data-seek]');
+    if (sk) return player.open('socializei', 0, sk, +sk.dataset.seek);
     const l = e.target.closest('[data-open-list]');
     if (l) return player.open(l.dataset.openList, +l.dataset.idx, l);
     const f = e.target.closest('.frame[data-list]');
@@ -634,6 +665,10 @@ function initReveals() {
     gsap.from($('.cap', c), { opacity: 0, y: 10, duration: 0.9, delay: 0.35, ease: 'power3.out', scrollTrigger: { trigger: c, start: 'top 88%' } });
   });
   shutter($$('.series__stage > .frame'), '.series__stage');
+  shutter($$('.case__media .frame'), '.case');
+  gsap.from('.case__board li', { opacity: 0, y: 18, duration: 0.9, ease: 'expo.out', stagger: 0.07, scrollTrigger: { trigger: '.case__board', start: 'top 92%' } });
+  gsap.from(['.case__head', '.case__line'], { opacity: 0, y: 24, duration: 1, ease: 'expo.out', stagger: 0.12, scrollTrigger: { trigger: '.case', start: 'top 80%' } });
+  gsap.fromTo('.case__line', { fontStretch: '62%' }, { fontStretch: '82%', ease: 'none', scrollTrigger: { trigger: '.case__line', start: 'top bottom', end: 'top 45%', scrub: 0.4 } });
   gsap.from('.series__stills .frame', { opacity: 0, y: 16, duration: 0.9, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: '.series__stills', start: 'top 95%' } });
   $$('.sgroup').forEach((g) => shutter($$('.frame', g), g, 0.08));
   $$('.index__row, .sgroup__head, .lv__head, .series__info').forEach((el) => {
