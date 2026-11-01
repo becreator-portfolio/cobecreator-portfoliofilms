@@ -1,60 +1,37 @@
-# Reel — curadoria, montagem e entrega
+# Reel — revisão da edição "fontes limpas"
 
-## Auditoria do acervo (81 arquivos do Drive)
+Base: a edição de 40 s com trilha *Tamo Competindo* (Neumann feat. F.P.B), aprovada pelo autor.
+Excluídos a pedido: cenas do cortejo da Estátua da Liberdade e dos bonés vermelhos (brutos do clipe *EUA hate*).
 
-Cada vídeo foi medido (resolução nativa, fps, bitrate por pixel, ruído, listras/scanlines, blocagem e resolução efetiva) e os candidatos foram revisados em 100%.
+## Quadros repetidos
 
-**Aprovados (base do reel)**
-- Brutos do clipe *EUA hate* — pastas "Estátua da Liberdade no Nordeste" e "Boné vermelho": 1920×1080 nativos, 24 fps, 7–15 Mbps, sem filtro, luz e paleta coerentes.
-- *Iconoclastia* (Cristo com a bandeira) — 1916×1078, um plano, com correção de cor para casar com a noite âmbar.
+A edição anterior tinha **235 quadros repetidos em 1.221** (19%). Duas causas:
 
-**Descartados**
-- *Comic Urban Realism* (956×718) e versões ampliadas — sem detalhe nativo.
-- *Tamo Competindo* — arquivo 4K com imagem pixelada (ampliado na origem).
-- Filmes autorais com textura de CRT/scanlines (*Realismo de flash*, *Gangsters*, *Noir automotivo*) e clipes com grão forte.
-- Animações cartoon — linguagem diferente da do reel.
-- *TZ da Coronel* — retirado do site a pedido.
-- *O Peso da História* — imagens de transmissão do UFC com textos.
-- Reels sociais (720p, legendas embutidas) e arquivos abaixo de 1080p.
+1. **Pulldown**: vídeos com animação a 24 fps exportados a 30 fps repetem 1 quadro a cada 5 (TZ, Visualizer, BergaOffice, LV, Laerte, Super-Choque, We Did It, Iconoclastia, Block Office #5). A cadência fica "picotada".
+2. **Entradas em trechos parados**: alguns cortes começavam em momentos congelados da fonte (fim de animação, quadro final segurado).
 
-## Montagem (26,0 s, 18 planos, 24 fps)
+Correção:
+- montagem refeita em **24 fps** com o pulldown revertido (`decimate=cycle=5`), sem gerar nem descartar quadros únicos;
+- todos os pontos de entrada escolhidos em janelas com 0% de repetição (varredura por janela de cada fonte);
+- o plano trípitco com o Projeto Lauro (109 de 132 quadros repetidos na fonte) foi substituído pelo Cristo do *Iconoclastia*;
+- o plano quase estático do senhor na praia ganhou o mesmo *push* lento dos planos de abertura.
 
-Trilha: áudio original do clipe *EUA hate* (107,7 BPM); cortes nos tempos e acentos da trilha.
+Resultado: **2 em 895** no corte (o clarão branco da transformação e o início de um motion que acelera — ambos do próprio conteúdo).
 
-| # | Tempo | Plano |
-|---|---|---|
-| | **Ato I — sertão, entardecer** | |
-| 1 | 00,00 | Estátua deitada no horizonte (abertura) |
-| 2 | 02,65 | Cascos e poeira |
-| 3 | 03,72 | Roda de madeira |
-| 4 | 04,78 | Vaqueiros |
-| 5 | 06,25 | Coroa arrastada |
-| 6 | 07,43 | Aéreo do comboio |
-| 7 | 09,22 | Menino e a coroa na poeira |
-| | **Ato II — cidade, noite** (ponte: poeira → boné caindo; impacto no acento de 11,45) | |
-| 8 | 10,89 | Boné na poça |
-| 9 | 12,52 | Homem com guarda-chuva sob a chuva de bonés |
-| 10 | 14,12 | Mão pega o boné |
-| 11 | 15,23 | Gato |
-| 12 | 16,30 | Janela |
-| 13 | 17,39 | Moto |
-| 14 | 18,46 | Para-brisa |
-| 15 | 19,53 | Garis |
-| 16 | 20,60 | Bueiro |
-| | **Coda** | |
-| 17 | 21,69 | Cristo com a bandeira em chamas |
-| 18 | 23,31 | Aéreo da cidade tomada → volta ao plano 1 (loop: noite → amanhecer) |
+## Super-Choque
 
-Tratamento: contraste/saturação uniformes e leves; só o plano 17 recebe correção de cor. Sem sharpening, sem grão, sem upscale, sem interpolação de quadros.
+Antes: 5 fragmentos de ~0,5 s espalhados pelo clímax, cortando a transformação no meio.
+Agora: **a transformação inteira em um plano de 3,2 s** (carga → raios → clarão → revelação), seguida do golpe no chão, da carga final e da explosão, que corta para o logo.
+
+## Vertical (celular)
+
+608×1080 recortado da imagem nativa, reenquadrado plano a plano. Textos de motion largos demais para 9:16 (Google/Instagram, 185 milhões, "E sua empresa?", logo LV) são **trocados por outro plano** na versão vertical, em vez de aparecerem cortados.
 
 ## Entregas (`public/media/reel/`)
 
 | Arquivo | Uso | Formato | Peso |
 |---|---|---|---|
-| `full.mp4` | "Assistir reel" (com som + cartão final) | 1920×1080 · 24 fps · 28,3 s | ~28 MB |
-| `loop.mp4` | topo, telas > 1280 px | 1920×1080 · mudo · 26 s | ~15 MB |
-| `loop-sm.mp4` | topo, telas até 1280 px e celular deitado | 1280×720 · mudo | ~7 MB |
-| `loop-v.mp4` | topo, celular/tablet em pé | 608×1080 (recorte nativo, reenquadrado por plano) | ~6 MB |
-| `poster.webp` / `poster-v.webp` | pôster = 1º quadro de cada loop | | |
-
-Scripts: `work/reel3/build.py` (cortes e reenquadramento) e `work/reel3/export.sh` (exportações) — fora do repositório.
+| `full.mp4` | "Assistir reel" (com som + cartão) | 1920×1080 · 24 fps · 40,7 s | 38 MB |
+| `loop.mp4` | topo, telas > 1280 px | 1920×1080 · 37,3 s | 16 MB |
+| `loop-sm.mp4` | topo, telas até 1280 px / celular deitado | 1280×720 | 13 MB |
+| `loop-v.mp4` | topo, celular/tablet em pé | 608×1080 | 13 MB |
