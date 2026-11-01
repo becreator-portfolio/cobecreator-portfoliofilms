@@ -1,37 +1,51 @@
-# Reel — revisão da edição "fontes limpas"
+# Reel de abertura — "Do conceito ao corte final"
 
-Base: a edição de 40 s com trilha *Tamo Competindo* (Neumann feat. F.P.B), aprovada pelo autor.
-Excluídos a pedido: cenas do cortejo da Estátua da Liberdade e dos bonés vermelhos (brutos do clipe *EUA hate*).
+Fonte: pasta do Drive **"frames para reels LP"** (20 vídeos: 9 planos novos gerados no Magnific + 11 trabalhos do acervo).
+Trilha: *Tamo Competindo* (Neumann feat. F.P.B), 112 BPM — cortes na grade da música.
+Último plano: o personagem entrando na parede de TVs (magnific 51097), até escurecer — o preto emenda no início do loop.
 
-## Quadros repetidos
+## Estrutura (35,5 s · 17 planos · 24 fps)
 
-A edição anterior tinha **235 quadros repetidos em 1.221** (19%). Duas causas:
+| # | Tempo | Plano |
+|---|---|---|
+| | **Ato I — o criador** | |
+| 1 | 00,0 | Escrita sob a luminária (o conceito) |
+| 2 | 02,2 | Tênis, macro |
+| 3 | 03,3 | UFC na tela do escritório |
+| 4 | 05,4 | O olho iluminado pela tela (push) |
+| 5 | 07,6 | Cinturão BMF |
+| 6 | 09,8 | Sozinho no ginásio (push) |
+| | **Ato II — o universo** | |
+| 7 | 10,8 | Estacionamento em quadrinhos (clarão) |
+| 8 | 13,0 | Arquivo 3D — o personagem salta da gaveta |
+| 9 | 15,2 | Block Office #4, #2 e #5 (tríptico; no celular, só o #4) |
+| 10 | 17,3 | Visualizer — fogo → |
+| 11 | 18,4 | → Iconoclastia — fogo (match cut, push) |
+| 12 | 20,5 | Neu, O Construtor — a broca |
+| 13 | 21,7 | Não Somos Rivais — os dobermans |
+| 14 | 22,7 | Drift e Tigres |
+| 15 | 23,8 | We Did It |
+| 16 | 24,9 | Super-Choque — a transformação inteira (clarão) |
+| | **Coda** | |
+| 17 | 28,1 | Parede de TVs → escurece (fim e emenda do loop) |
 
-1. **Pulldown**: vídeos com animação a 24 fps exportados a 30 fps repetem 1 quadro a cada 5 (TZ, Visualizer, BergaOffice, LV, Laerte, Super-Choque, We Did It, Iconoclastia, Block Office #5). A cadência fica "picotada".
-2. **Entradas em trechos parados**: alguns cortes começavam em momentos congelados da fonte (fim de animação, quadro final segurado).
+## Cadência e quadros
 
-Correção:
-- montagem refeita em **24 fps** com o pulldown revertido (`decimate=cycle=5`), sem gerar nem descartar quadros únicos;
-- todos os pontos de entrada escolhidos em janelas com 0% de repetição (varredura por janela de cada fonte);
-- o plano trípitco com o Projeto Lauro (109 de 132 quadros repetidos na fonte) foi substituído pelo Cristo do *Iconoclastia*;
-- o plano quase estático do senhor na praia ganhou o mesmo *push* lento dos planos de abertura.
-
-Resultado: **2 em 895** no corte (o clarão branco da transformação e o início de um motion que acelera — ambos do próprio conteúdo).
-
-## Super-Choque
-
-Antes: 5 fragmentos de ~0,5 s espalhados pelo clímax, cortando a transformação no meio.
-Agora: **a transformação inteira em um plano de 3,2 s** (carga → raios → clarão → revelação), seguida do golpe no chão, da carga final e da explosão, que corta para o logo.
+- Fontes 30 fps com pulldown (Visualizer, Iconoclastia, Unânime, Super-Choque, We Did It, Block Office #5): pulldown revertido.
+- Fontes 30 fps reais (Drift, plano final): todos os quadros tocados a 24 fps (1,25× mais lento) — nada é descartado ou duplicado.
+- Pontos de entrada em trechos sem congelamento (o olho começa em 1,2 s; o arquivo 3D em 2,0 s; o ginásio em 1,8 s).
+- *Push* calculado em 4× e reduzido: avanço suave em todos os quadros, sem degraus.
+- Resultado: **1 quadro repetido em 851** nos arquivos finais — o clarão branco da transformação, do próprio conteúdo.
 
 ## Vertical (celular)
 
-608×1080 recortado da imagem nativa, reenquadrado plano a plano. Textos de motion largos demais para 9:16 (Google/Instagram, 185 milhões, "E sua empresa?", logo LV) são **trocados por outro plano** na versão vertical, em vez de aparecerem cortados.
+Recorte 9:16 da imagem nativa, reenquadrado por plano; o tríptico do Block Office vira o vertical nativo do #4.
 
 ## Entregas (`public/media/reel/`)
 
 | Arquivo | Uso | Formato | Peso |
 |---|---|---|---|
-| `full.mp4` | "Assistir reel" (com som + cartão) | 1920×1080 · 24 fps · 40,7 s | 38 MB |
-| `loop.mp4` | topo, telas > 1280 px | 1920×1080 · 37,3 s | 16 MB |
-| `loop-sm.mp4` | topo, telas até 1280 px / celular deitado | 1280×720 | 13 MB |
-| `loop-v.mp4` | topo, celular/tablet em pé | 608×1080 | 13 MB |
+| `full.mp4` | "Assistir reel" (com som) | 1920×1080 · 24 fps · 35,5 s | 35 MB |
+| `loop.mp4` | topo, telas > 1280 px | 1920×1080 | 15 MB |
+| `loop-sm.mp4` | topo, telas até 1280 px / celular deitado | 1280×720 | 12 MB |
+| `loop-v.mp4` | topo, celular/tablet em pé | 608×1080 | 11 MB |

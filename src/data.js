@@ -10,7 +10,7 @@ export const contact = {
 export const reel = {
   id: 'reel',
   title: 'Reel',
-  meta: 'Montagem com trechos do acervo · Trilha: Neumann feat. F.P.B — Tamo Competindo',
+  meta: 'Do conceito ao corte final · Trilha: Neumann feat. F.P.B — Tamo Competindo',
 };
 
 // fmt: 'h' horizontal | 'v' vertical
