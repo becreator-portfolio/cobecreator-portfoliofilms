@@ -159,7 +159,7 @@ function render() {
           ${b.items
             .map(
               (it, i) => `
-            <figure class="block__item block__item--${it.fmt}">
+            <figure class="block__item block__item--${it.fmt}"${it.op ? ` style="--op:${it.op}"` : ''}>
               ${frame(it, { list: 'block', idx: i, ratio: it.fmt === 'v' ? '9 / 16' : '16 / 9' })}
               ${cap({ n: pad(i + 1), t: it.title, m: dur(it.id) })}
             </figure>`

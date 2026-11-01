@@ -61,8 +61,8 @@ export const campaigns = {
       { id: 'b-2', title: 'Campanha #2', fmt: 'v' },
       { id: 'b-3', title: 'Campanha #3', fmt: 'v' },
       { id: 'b-5', title: 'Campanha #5', fmt: 'v' },
-      { id: 'b-6', title: 'Campanha #6', fmt: 'h' },
-      { id: 'b-berga', title: 'BergaOffice', fmt: 'h' },
+      { id: 'b-6', title: 'Campanha #6', fmt: 'h', op: '35%' }, // op: centro do recorte 9:16 no celular
+      { id: 'b-berga', title: 'BergaOffice', fmt: 'h', op: '55%' },
     ],
   },
   lv: {

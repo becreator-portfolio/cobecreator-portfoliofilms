@@ -414,13 +414,14 @@ body::after {
   .block__pin::-webkit-scrollbar { display: none; }
   .block__track { transform: none !important; }
   .block__item, .block__intro { scroll-snap-align: start; scroll-margin-left: var(--m); }
-  .block__item--v .frame { height: min(62svh, 560px); }
-  .block__item--h .frame { height: min(34svh, 300px); }
+  /* carrossel: todas as peças no mesmo quadro 9:16; as horizontais são reenquadradas no assunto (--op)
+     e abrem no formato original no player */
+  .block__item--v .frame, .block__item--h .frame { height: min(62svh, 560px); aspect-ratio: 9 / 16 !important; }
+  .block__item .frame img, .block__item .frame video { object-position: var(--op, 50%) 50%; }
   .block__progress { display: none; }
 }
 @media (max-height: 520px) and (orientation: landscape) {
-  .block__item--v .frame { height: 76svh; }
-  .block__item--h .frame { height: 44svh; }
+  .block__item--v .frame, .block__item--h .frame { height: 76svh; }
 }
 
 .lv { padding: 0 var(--m); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--g); row-gap: 40px; }
