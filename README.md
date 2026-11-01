@@ -34,9 +34,19 @@ Gera `dist/` (estático). Na Vercel: importar o repositório do GitHub, framewor
 - full: H.264, até 1920×1080 (horizontal) / 1080×1920 (vertical), CRF 25, máx. 3,8 Mbps, AAC 128k, faststart.
 - preview: 5 s sem áudio, 720 px (horizontal) / 480 px (vertical), CRF 28.
 
-## Fontes
+## Tipografia
 
-`public/fonts/` — Archivo (variável: peso 100–900, largura 62–125%) e IBM Plex Mono 400/500, só o subconjunto latino, com preload. Licenças OFL na mesma pasta.
+Duas famílias, uma lógica: **a largura é hierarquia**.
+
+- **Archivo** (variável, peso 100–900, largura 62–125%): 125% para estrutura (títulos, ecoa o "BY" do logo), 62–82% para contraste e listas, 100% para leitura.
+- **Martian Mono** (variável, largura 75–112,5%): metadados e timecode — linguagem de claquete; mais encorpada que a Plex em tamanho pequeno sobre vídeo. 87,5% no desktop, 80% no celular.
+- O script fica só no logo.
+
+Escala única em `src/style.css` (`--t-xxl` → `--t-xs`); comparativo das monoespaçadas avaliadas em `tools/specimen-tipografia.png`. Arquivos em `public/fonts/` (subconjunto latino, preload, licenças OFL).
+
+## Motion
+
+Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assinatura do eixo de largura), peças abrem como obturador, o player cresce a partir da miniatura clicada, previews mostram barra de reprodução, o índice mostra uma prévia da seção, o Block Office destaca a peça central e o botão do reel tem leve magnetismo. Tudo desligado com `prefers-reduced-motion`.
 
 ## Decisões
 

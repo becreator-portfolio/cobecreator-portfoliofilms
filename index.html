@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>co.becreator — Produção audiovisual</title>
-    <meta name="description" content="co.becreator — filmes autorais, clipes e campanhas. Produção audiovisual do conceito ao corte final." />
+    <meta name="description" content="co.becreator — filmes autorais, clipes e campanhas. Do conceito ao corte final." />
     <meta name="theme-color" content="#0c0b09" />
     <link rel="canonical" href="https://cobecreator-portfoliofilms-hg3i.vercel.app/" />
     <meta property="og:type" content="website" />
@@ -19,7 +19,7 @@
     <meta name="twitter:image" content="https://cobecreator-portfoliofilms-hg3i.vercel.app/og.jpg" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="/fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/plex-mono-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/martian-mono.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/media/reel/poster.webp" as="image" fetchpriority="high" />
   </head>
   <body>
@@ -41,7 +41,7 @@
         <a href="#campanhas">Campanhas</a>
         <a href="#serie">Série</a>
         <a href="#social">Social</a>
-        <a href="#contato" class="header__cta">Contato</a>
+        <a href="#contato">Contato</a>
       </nav>
       <button class="header__menu mono" aria-expanded="false" aria-controls="menu">Menu</button>
     </header>
@@ -61,36 +61,31 @@
         <div class="hero__top mono">
           <span>Produção audiovisual</span>
           <span class="hero__tc"><i class="rec"></i><span data-tc>00:00:00:00</span></span>
-          <span class="hide-sm">Reel <span data-reel-dur></span></span>
         </div>
         <h1 class="hero__title">
           <span class="sr-only">co.becreator — produção audiovisual</span>
           <svg class="hero__logo" viewBox="40 92 1956 506" aria-hidden="true"><use href="#logo-path" /></svg>
         </h1>
         <div class="hero__bottom">
-          <button class="btn-reel" data-open="reel">
+          <button class="btn-reel" data-open="reel" data-magnetic>
             <span class="btn-reel__ring" aria-hidden="true"><span class="btn-reel__icon"></span></span>
             <span class="btn-reel__txt">
               <span class="btn-reel__l">Assistir reel</span>
               <span class="btn-reel__s mono"><span data-reel-dur></span> · com som</span>
             </span>
           </button>
-          <span class="hero__scroll mono hide-sm" aria-hidden="true">Role <span class="hero__arrow">↓</span></span>
         </div>
       </section>
 
       <!-- APRESENTAÇÃO + ÍNDICE -->
       <section class="statement" aria-label="Apresentação">
-        <p class="statement__text" data-lines>
-          <span class="w-wide">Do conceito</span>
-          <span class="w-cond">ao corte final.</span>
+        <p class="statement__text">
+          <span class="line-mask"><span class="statement__a" data-morph="expand">Do conceito</span></span>
+          <span class="line-mask"><span class="statement__b">ao corte final.</span></span>
         </p>
-        <div class="statement__aside">
-          <p class="statement__lead">Produção integral de filmes autorais, clipes e campanhas.</p>
-          <p class="statement__craft mono">Direção de arte · Imagem gerada por IA · Montagem · Motion · Finalização</p>
-        </div>
+        <div class="statement__peek" aria-hidden="true"><img alt="" decoding="async" /></div>
+        <p class="statement__craft mono">Direção de arte · IA generativa · Montagem · Motion · Finalização</p>
         <nav class="toc" aria-label="Índice de trabalhos">
-          <p class="toc__label mono">Índice</p>
           <ol data-toc></ol>
         </nav>
       </section>
@@ -98,9 +93,9 @@
       <!-- FILMES -->
       <section class="section" id="filmes" aria-labelledby="t-filmes" data-chapter-name="Filmes" data-chapter-n="01">
         <header class="shead">
-          <span class="shead__n mono">(01)</span>
-          <h2 class="shead__t" id="t-filmes" data-split>Filmes</h2>
-          <span class="shead__m mono" data-count="films"></span>
+          <span class="shead__n mono">01</span>
+          <h2 class="shead__t" id="t-filmes" data-morph="expand">Filmes</h2>
+          <span class="shead__c mono" data-count="films"></span>
         </header>
         <div class="films" data-films></div>
       </section>
@@ -108,20 +103,20 @@
       <!-- CLIPES -->
       <section class="section" id="clipes" aria-labelledby="t-clipes" data-chapter-name="Clipes" data-chapter-n="02">
         <header class="shead">
-          <span class="shead__n mono">(02)</span>
-          <h2 class="shead__t" id="t-clipes" data-split>Clipes</h2>
-          <span class="shead__m mono" data-count="clips"></span>
+          <span class="shead__n mono">02</span>
+          <h2 class="shead__t" id="t-clipes" data-morph="expand">Clipes</h2>
+          <span class="shead__c mono" data-count="clips"></span>
         </header>
         <ol class="index" data-clips></ol>
-        <div class="float-preview" aria-hidden="true"><video muted loop playsinline preload="none"></video><span class="float-preview__tc mono"></span></div>
+        <div class="float-preview" aria-hidden="true"><video muted loop playsinline preload="none"></video><span class="float-preview__tc mono"></span><span class="playhead"></span></div>
       </section>
 
       <!-- CAMPANHAS -->
       <section class="section section--flush" id="campanhas" aria-labelledby="t-camp" data-chapter-name="Campanhas" data-chapter-n="03">
         <header class="shead">
-          <span class="shead__n mono">(03)</span>
-          <h2 class="shead__t" id="t-camp" data-split>Campanhas</h2>
-          <span class="shead__m mono" data-count="campaigns"></span>
+          <span class="shead__n mono">03</span>
+          <h2 class="shead__t" id="t-camp" data-morph="expand">Campanhas</h2>
+          <span class="shead__c mono" data-count="campaigns"></span>
         </header>
         <div data-tz></div>
         <div data-block></div>
@@ -131,9 +126,9 @@
       <!-- SÉRIE -->
       <section class="section" id="serie" aria-labelledby="t-serie" data-chapter-name="Série" data-chapter-n="04">
         <header class="shead">
-          <span class="shead__n mono">(04)</span>
-          <h2 class="shead__t" id="t-serie" data-split>Série</h2>
-          <span class="shead__m mono">YouTube · Formato longo</span>
+          <span class="shead__n mono">04</span>
+          <h2 class="shead__t" id="t-serie" data-morph="expand">Série</h2>
+          <span class="shead__c mono" data-count="series"></span>
         </header>
         <div data-series></div>
       </section>
@@ -141,22 +136,19 @@
       <!-- SOCIAL -->
       <section class="section" id="social" aria-labelledby="t-social" data-chapter-name="Social" data-chapter-n="05">
         <header class="shead">
-          <span class="shead__n mono">(05)</span>
-          <h2 class="shead__t" id="t-social" data-split>Social</h2>
-          <span class="shead__m mono" data-count="social"></span>
+          <span class="shead__n mono">05</span>
+          <h2 class="shead__t" id="t-social" data-morph="expand">Social</h2>
+          <span class="shead__c mono" data-count="social"></span>
         </header>
         <div data-social></div>
       </section>
 
       <!-- CONTATO -->
       <section class="contact" id="contato" aria-labelledby="t-contato" data-chapter-name="Contato" data-chapter-n="06">
-        <div class="contact__head">
-          <h2 class="contact__label mono" id="t-contato">(06) Contato</h2>
-          <p class="contact__lead">Filme, clipe ou campanha — escreva.</p>
-        </div>
+        <h2 class="contact__label mono" id="t-contato">06 — Contato</h2>
         <a class="contact__mail" data-mail href="#"></a>
         <div class="contact__row mono">
-          <button class="contact__btn" data-copy>Copiar e-mail</button>
+          <button class="contact__btn" data-copy>Copiar</button>
           <a class="contact__btn" data-insta target="_blank" rel="noopener"></a>
           <span class="sr-only" aria-live="polite" data-copy-status></span>
         </div>
@@ -176,8 +168,8 @@
           <p class="player__meta dim"></p>
         </div>
         <div class="player__nav">
-          <a class="player__yt" target="_blank" rel="noopener" hidden>Abrir no YouTube ↗</a>
-          <button class="player__prev" aria-label="Trabalho anterior">← <span class="hide-md">Anterior</span></button>
+          <a class="player__yt" target="_blank" rel="noopener" hidden>YouTube ↗</a>
+          <button class="player__prev" aria-label="Trabalho anterior">←</button>
           <span class="player__pos dim"></span>
           <button class="player__next" aria-label="Próximo trabalho"><span class="player__next-l hide-md"></span> →</button>
           <button class="player__close" aria-label="Fechar player">Fechar ✕</button>

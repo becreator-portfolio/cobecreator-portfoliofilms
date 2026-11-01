@@ -31,17 +31,18 @@ const playlists = {};
 const reg = (key, items) => { playlists[key] = items; };
 
 /* ─────────────────────────────── templates */
-function frame(item, { list, idx, label = 'Play', ratio } = {}) {
+function frame(item, { list, idx, label = 'Play', ratio, cls = '' } = {}) {
   const r = ratio ?? ratioOf(item.id);
   return `
-  <div class="frame" role="button" tabindex="0" style="aspect-ratio:${r}"
-       data-id="${item.id}" data-list="${list}" data-idx="${idx}" data-cursor="${label}"
+  <div class="frame ${cls}" role="button" tabindex="0" style="aspect-ratio:${r}"
+       data-id="${item.id}" data-list="${list}" data-idx="${idx}" data-cursor="${label} · ${dur(item.id)}"
        aria-label="Assistir ${esc(item.title)} — ${dur(item.id)}">
     <div class="frame__inner">
       <img src="${src(item.id, 'poster.webp')}" alt="" loading="lazy" decoding="async" />
       <video muted loop playsinline preload="none" data-src="${src(item.id, 'preview.mp4')}"></video>
     </div>
     <span class="frame__tc mono" aria-hidden="true"><i class="rec"></i>${dur(item.id)}</span>
+    <span class="playhead" aria-hidden="true"></span>
   </div>`;
 }
 const cap = ({ n, t, m }) =>
@@ -57,11 +58,11 @@ const counts = {
   social: social.reduce((a, g) => a + g.items.length, 0),
 };
 const chapters = [
-  ['filmes', 'Filmes', counts.films],
-  ['clipes', 'Clipes', counts.clips],
-  ['campanhas', 'Campanhas', counts.campaigns],
-  ['serie', 'Série', counts.series],
-  ['social', 'Social', counts.social],
+  ['filmes', 'Filmes', counts.films, src('f-vibe', 'poster.webp')],
+  ['clipes', 'Clipes', counts.clips, src('c-sol', 'poster.webp')],
+  ['campanhas', 'Campanhas', counts.campaigns, src('k-tz', 'poster.webp')],
+  ['serie', 'Série', counts.series, src('serie', 'poster.webp')],
+  ['social', 'Social', counts.social, src('s-ryu', 'poster.webp')],
 ];
 
 function render() {
@@ -70,8 +71,9 @@ function render() {
 
   // índice (statement) + mobile menu
   $('[data-toc]').innerHTML = chapters
-    .map(([id, name, n], i) => `<li><a href="#${id}"><span class="toc__n">(${pad(i + 1)})</span><span class="toc__t">${name}</span><span class="toc__c">${pad(n)}</span></a></li>`)
+    .map(([id, name, n, peek], i) => `<li><a href="#${id}" data-peek="${peek}"><span class="toc__n">${pad(i + 1)}</span><span class="toc__t">${name}</span><span class="toc__c">${pad(n)}</span></a></li>`)
     .join('');
+  $('.statement__peek img').src = chapters[0][3];
   $('[data-menu-nav]').innerHTML = [...chapters, ['contato', 'Contato', null]]
     .map(([id, name, n], i) => `<a href="#${id}"><span class="mono">${pad(i + 1)}</span>${name}<span class="mono">${n ? pad(n) : ''}</span></a>`)
     .join('');
@@ -90,14 +92,15 @@ function render() {
   const ig = $('[data-insta]');
   ig.href = contact.instagram;
   ig.textContent = `Instagram ${contact.instagramHandle} ↗`;
+  ig.setAttribute('aria-label', `Instagram ${contact.instagramHandle} (abre em nova aba)`);
   $('[data-year]').textContent = new Date().getFullYear();
 
   // films
   reg('films', films.map((f) => ({ ...f, kind: 'Filme autoral' })));
   $('[data-films]').innerHTML = films
-    .map((f, i) => card(f, { list: 'films', idx: i }, { n: pad(i + 1), t: f.title, m: `${f.ratio} · ${dur(f.id)}` }, `style="--arn:${ratioNum(f.id)}"`))
+    .map((f, i) => card(f, { list: 'films', idx: i }, { n: pad(i + 1), t: f.title, m: dur(f.id) }, `style="--arn:${ratioNum(f.id)}"`))
     .join('');
-  $('[data-count="films"]').textContent = `${pad(counts.films)} filmes autorais`;
+
 
   // clips index
   reg('clips', clips.map((c) => ({ ...c, kind: 'Clipe' })));
@@ -116,9 +119,8 @@ function render() {
     </li>`
     )
     .join('');
-  $('[data-count="clips"]').textContent = `${pad(counts.clips)} clipes`;
-  $('[data-count="campaigns"]').textContent = `${pad(counts.campaigns)} peças`;
-  $('[data-count="social"]').textContent = `${pad(counts.social)} reels`;
+  // section counts: just the number, superscript to the title
+  Object.entries(counts).forEach(([k, n]) => { const el = $(`[data-count="${k}"]`); if (el) { el.textContent = pad(n); el.dataset.n = n; } });
 
   // TZ
   const tz = campaigns.tz;
@@ -127,8 +129,8 @@ function render() {
     <div class="tz" data-tz-wrap>
       ${frame(tz, { list: 'tz', idx: 0, ratio: 'auto' })}
       <div class="tz__info">
-        <h3 class="tz__t">${tz.title}</h3>
-        <span class="tz__m mono">${tz.kind} · ${dur(tz.id)}</span>
+        <h3 class="tz__t ptitle">${tz.title}</h3>
+        <span class="mono">${dur(tz.id)}</span>
       </div>
     </div>`;
 
@@ -140,9 +142,8 @@ function render() {
       <div class="block__pin" tabindex="-1">
         <div class="block__track">
           <div class="block__intro">
-            <span class="mono dim">${b.kind}</span>
-            <h3 class="block__t">${b.title}</h3>
-            <span class="block__hint mono">${pad(b.items.length)} peças · <span class="hint-touch">deslize →</span><span class="hint-scroll">role para ver →</span></span>
+            <h3 class="ptitle">${b.title}</h3>
+            <span class="block__hint mono">${pad(b.items.length)} peças <span class="block__arrow" aria-hidden="true">→</span></span>
           </div>
           ${b.items
             .map(
@@ -164,8 +165,8 @@ function render() {
   $('[data-lv]').innerHTML = `
     <div class="lv">
       <div class="lv__head" data-reveal>
-        <span class="mono dim">${lv.kind}</span>
-        <h3 class="lv__t">${lv.title}</h3>
+        <h3 class="ptitle">${lv.title}</h3>
+        <span class="mono dim">Motion</span>
       </div>
       ${lv.items.map((it, i) => card(it, { list: 'lv', idx: i, ratio: '16 / 9' }, { n: pad(i + 1), t: it.title, m: dur(it.id) })).join('')}
     </div>`;
@@ -175,23 +176,23 @@ function render() {
   $('[data-series]').innerHTML = `
     <div class="series">
       <div class="series__info">
+        <h3 class="ptitle">${series.title}</h3>
         <span class="mono dim">${series.channel}</span>
-        <h3 class="series__t">${series.title}</h3>
-        <p class="series__meta mono">${pad(series.episodes)} episódios</p>
         <div class="series__actions">
-          <button class="btn-line mono" data-yt><span class="btn-reel__icon" aria-hidden="true"></span>Assistir a série</button>
+          <button class="btn-line mono" data-yt aria-label="Assistir ${series.title}"><span class="btn-reel__icon" aria-hidden="true"></span>Assistir</button>
           <a class="link-ext mono" href="${ytList}" target="_blank" rel="noopener">YouTube ↗</a>
         </div>
       </div>
       <div class="series__stage">
-        <div class="frame" role="button" tabindex="0" data-yt data-cursor="Assistir a série" aria-label="Assistir ${series.title} — playlist" style="aspect-ratio:16/9">
+        <div class="frame" role="button" tabindex="0" data-yt data-cursor="Assistir · ${pad(series.episodes)} episódios" aria-label="Assistir ${series.title} — playlist" style="aspect-ratio:16/9">
           <div class="frame__inner">
             <img src="${src('serie', 'poster.webp')}" alt="" loading="lazy" decoding="async" />
             <video muted loop playsinline preload="none" data-src="${src('serie', 'preview.mp4')}"></video>
           </div>
+          <span class="playhead" aria-hidden="true"></span>
         </div>
         <div class="series__stills" aria-hidden="true">
-          ${series.stills.map((s) => `<div class="frame" data-yt data-cursor="Assistir a série"><div class="frame__inner"><img src="${src('serie', s + '.webp')}" alt="" loading="lazy" decoding="async" /></div></div>`).join('')}
+          ${series.stills.map((s) => `<div class="frame" data-yt data-cursor="Assistir"><div class="frame__inner"><img src="${src('serie', s + '.webp')}" alt="" loading="lazy" decoding="async" /></div></div>`).join('')}
         </div>
       </div>
     </div>`;
@@ -202,7 +203,7 @@ function render() {
     const cards = g.items
       .map((it) => {
         const idx = flat.push({ ...it, title: `${g.client} — ${it.title}`, kind: g.note }) - 1;
-        return card(it, { list: 'social', idx, ratio: '9 / 16' }, { t: it.title, m: dur(it.id) });
+        return `<figure class="card" data-reveal>${frame({ ...it, title: `${g.client} — ${it.title}` }, { list: 'social', idx, ratio: '9 / 16', cls: 'frame--tc' })}</figure>`;
       })
       .join('');
     return `
@@ -214,8 +215,6 @@ function render() {
         <div class="sgroup__row">${cards}</div>
       </div>`;
   });
-  // the third group closes the first row of the 6-col sheet; a usage hint fills the remaining column
-  groups.splice(3, 0, `<p class="social__note mono" aria-hidden="true">${FINE ? 'Passe o cursor para ver · clique para assistir com som' : 'Toque para assistir com som'}</p>`);
   $('[data-social]').innerHTML = `<div class="social">${groups.join('')}</div>`;
   reg('social', flat);
   reg('reel', [reel]);
@@ -410,7 +409,7 @@ const player = {
     const many = this.list.length > 1;
     const next = many ? this.list[this.idx + 1] : null;
     $('.player__title').textContent = item.title;
-    $('.player__meta').textContent = item.meta ?? [item.kind, item.artist, item.credit, item.ratio].filter(Boolean).join(' · ');
+    $('.player__meta').textContent = item.meta ?? [item.kind, item.artist, item.credit].filter(Boolean).join(' · ');
     $('.player__pos').textContent = many ? `${pad(this.idx + 1)} / ${pad(this.list.length)}` : '';
     $('.player__prev').hidden = $('.player__next').hidden = !many;
     $('.player__prev').disabled = this.idx === 0;
@@ -429,16 +428,16 @@ const player = {
     playing.forEach(stopPreview);
     $('.hero__video')?.pause();
   },
-  open(listKey, idx = 0) {
+  open(listKey, idx = 0, srcEl = null) {
     this.prepare();
     this.list = playlists[listKey];
     this.idx = idx;
     this.el.classList.remove('is-embed');
     $('.player__embed').innerHTML = '';
-    this.show();
+    this.show(srcEl);
     this.load();
   },
-  openEmbed() {
+  openEmbed(srcEl = null) {
     this.prepare();
     this.list = [{ title: series.title }];
     this.el.classList.add('is-embed');
@@ -450,16 +449,35 @@ const player = {
     yt.href = `https://www.youtube.com/playlist?list=${series.playlist}`;
     yt.hidden = false;
     $('.player__embed').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${series.firstVideo}?list=${series.playlist}&autoplay=1&rel=0&modestbranding=1" title="${series.title} — playlist no YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
-    this.show();
+    this.show(srcEl);
   },
-  show() {
+  // the frame grows out of the piece that was clicked: spatial continuity between page and player
+  sourceRect(srcEl) {
+    if (!srcEl) return null;
+    const fp = $('.float-preview');
+    let el = srcEl;
+    if (srcEl.classList.contains('index__btn')) {
+      const thumb = $('.index__thumb', srcEl);
+      el = fp.classList.contains('is-on') ? fp : thumb && thumb.offsetParent ? thumb : srcEl;
+    }
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0 ? r : null;
+  },
+  show(srcEl = null) {
+    const r = this.sourceRect(srcEl);
     this.el.hidden = false;
     this.lenis?.stop();
     document.documentElement.style.overflow = 'hidden';
-    flash(0.6);
     if (!RM) {
-      gsap.fromTo('.player__stage', { clipPath: 'inset(18% 12% 18% 12%)', opacity: 0.4 }, { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.9, ease: 'expo.out' });
-      gsap.fromTo(['.player__bar', '.player__controls'], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.2, ease: 'power3.out', clearProps: 'opacity,transform' });
+      const stage = $('.player__stage');
+      const sr = stage.getBoundingClientRect();
+      const from = r
+        ? `inset(${Math.max(0, r.top - sr.top)}px ${Math.max(0, sr.right - r.right)}px ${Math.max(0, sr.bottom - r.bottom)}px ${Math.max(0, r.left - sr.left)}px)`
+        : 'inset(18% 12% 18% 12%)';
+      gsap.fromTo(this.el, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,1)', duration: 0.5, ease: 'power2.out', clearProps: 'backgroundColor' });
+      gsap.fromTo(stage, { clipPath: r ? from : from }, { clipPath: r ? 'inset(0px 0px 0px 0px)' : 'inset(0% 0% 0% 0%)', duration: 0.95, ease: 'expo.inOut', clearProps: 'clipPath' });
+      gsap.fromTo(['.player__bar', '.player__controls'], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.45, ease: 'power3.out', clearProps: 'opacity,transform' });
+      gsap.delayedCall(0.62, () => flash(0.32));
     }
     $('.player__close').focus({ preventScroll: true });
   },
@@ -492,13 +510,14 @@ const player = {
 
 function initOpeners() {
   document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-yt]')) return player.openEmbed();
+    const yt = e.target.closest('[data-yt]');
+    if (yt) return player.openEmbed(yt.classList.contains('frame') ? yt : $('.series__stage > .frame'));
     const o = e.target.closest('[data-open]');
-    if (o) return player.open(o.dataset.open, 0);
+    if (o) return player.open(o.dataset.open, 0, null);
     const l = e.target.closest('[data-open-list]');
-    if (l) return player.open(l.dataset.openList, +l.dataset.idx);
+    if (l) return player.open(l.dataset.openList, +l.dataset.idx, l);
     const f = e.target.closest('.frame[data-list]');
-    if (f) return player.open(f.dataset.list, +f.dataset.idx);
+    if (f) return player.open(f.dataset.list, +f.dataset.idx, f);
   });
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -557,30 +576,68 @@ function initHero() {
   gsap.to('.hero__title', { yPercent: -36, opacity: 0.15, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 }
 
-/* ─────────────────────────────── text + reveals */
-function splitChars(el) {
-  const text = el.textContent;
-  el.innerHTML = `<span class="sr-only">${text}</span><span aria-hidden="true">${[...text].map((ch) => `<span class="char">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('')}</span>`;
-  return $$('.char', el);
+/* ─────────────────────────────── motion system */
+// 1 · WIDTH MORPH — the signature: titles travel from condensed to extended as they enter,
+//     the same axis that separates "BY" (wide) from the body. Scrubbed, so it reads as camera movement.
+function initMorph() {
+  $$('[data-morph="expand"]').forEach((el) => {
+    const isShead = el.classList.contains('shead__t');
+    gsap.fromTo(el,
+      { fontStretch: '62%', opacity: isShead ? 0.25 : 1 },
+      { fontStretch: '125%', opacity: 1, ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top bottom', end: isShead ? 'top 62%' : 'top 30%', scrub: 0.4 } });
+  });
+  // contact: the address expands as the page closes — mirrors the opening statement
+  const ma = $('.contact__mail .mail-a');
+  if (ma) gsap.fromTo(ma, { fontStretch: '62%' }, { fontStretch: '125%', ease: 'none', scrollTrigger: { trigger: '.contact', start: 'top bottom', end: 'top 35%', scrub: 0.4 } });
+}
+
+// 2 · COUNTS roll up when the header enters
+function initCounts() {
+  $$('[data-count]').forEach((el) => {
+    const n = +el.dataset.n || 0;
+    const o = { v: 0 };
+    el.textContent = '00';
+    ScrollTrigger.create({
+      trigger: el, start: 'top 88%', once: true,
+      onEnter: () => gsap.to(o, { v: n, duration: 0.9, ease: 'power2.out', onUpdate: () => (el.textContent = pad(Math.round(o.v))) }),
+    });
+  });
+}
+
+// 3 · SHUTTER — pieces open like a frame being exposed (same gesture as the TZ shutter)
+function shutter(frames, trigger, stagger = 0) {
+  if (!frames.length) return;
+  const inners = frames.map((f) => $('.frame__inner', f));
+  gsap.set(frames, { clipPath: 'inset(100% 0% 0% 0%)' });
+  gsap.set(inners, { scale: 1.16 });
+  ScrollTrigger.create({
+    trigger, start: 'top 88%', once: true,
+    onEnter: () => {
+      gsap.to(frames, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.25, ease: 'expo.out', stagger, clearProps: 'clipPath' });
+      gsap.to(inners, { scale: 1, duration: 1.6, ease: 'expo.out', stagger });
+    },
+  });
 }
 
 function initReveals() {
   if (RM) return;
-  $$('[data-split]').forEach((el) => {
-    const chars = splitChars(el);
-    gsap.from(chars, { yPercent: 105, duration: 1.1, ease: 'expo.out', stagger: 0.035, scrollTrigger: { trigger: el, start: 'top 90%' } });
-  });
-  $$('[data-lines] > span').forEach((line) => {
-    const wrap = document.createElement('span');
-    wrap.className = 'line-mask';
-    line.parentNode.insertBefore(wrap, line);
-    wrap.appendChild(line);
-  });
-  gsap.from('[data-lines] .line-mask > span', { yPercent: 110, duration: 1.3, ease: 'expo.out', stagger: 0.12, scrollTrigger: { trigger: '[data-lines]', start: 'top 82%' } });
-  gsap.from(['.statement__aside', '.toc'], { opacity: 0, y: 24, duration: 1.1, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: '.statement__aside', start: 'top 90%' } });
+  initMorph();
+  initCounts();
 
-  $$('[data-reveal]').forEach((el) => {
-    gsap.from(el, { opacity: 0, y: 36, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 94%' } });
+  // opening statement: the second line arrives as a cut once the first has expanded
+  gsap.from('.statement__b', { yPercent: 110, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '.statement__text', start: 'top 55%' } });
+  gsap.from(['.statement__craft', '.statement__peek', '.toc li'], { opacity: 0, y: 20, duration: 1, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: '.statement__craft', start: 'top 92%' } });
+
+  $$('.films .card, .lv .card').forEach((c) => {
+    shutter([$('.frame', c)], c);
+    gsap.from($('.cap', c), { opacity: 0, y: 10, duration: 0.9, delay: 0.35, ease: 'power3.out', scrollTrigger: { trigger: c, start: 'top 88%' } });
+  });
+  shutter($$('.series__stage > .frame'), '.series__stage');
+  gsap.from('.series__stills .frame', { opacity: 0, y: 16, duration: 0.9, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: '.series__stills', start: 'top 95%' } });
+  $$('.sgroup').forEach((g) => shutter($$('.frame', g), g, 0.08));
+  $$('.index__row, .sgroup__head, .lv__head, .series__info').forEach((el) => {
+    gsap.from(el, { opacity: 0, y: 24, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 94%' } });
   });
 
   // depth: media drifts slightly against the scroll inside its frame
@@ -588,7 +645,7 @@ function initReveals() {
     gsap.fromTo(inner, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: inner.parentNode, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 
-  // TZ: the frame opens like a shutter
+  // TZ: the frame opens like a shutter, scrubbed
   const tz = $('[data-tz-wrap] .frame');
   if (tz) {
     gsap.fromTo(tz, { clipPath: 'inset(14% 18% 14% 18%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: '[data-tz-wrap]', start: 'top bottom', end: 'top 15%', scrub: true } });
@@ -610,6 +667,62 @@ function initReveals() {
   }
 }
 
+// 4 · PLAYHEADS — a thin bar shows a preview is running and how far it is in its loop
+function initPlayheads() {
+  const fp = $('.float-preview');
+  const fpv = $('video', fp);
+  const fph = $('.playhead', fp);
+  gsap.ticker.add(() => {
+    playing.forEach((fr) => {
+      const v = $('video', fr), ph = $('.playhead', fr);
+      if (v && ph && v.duration) ph.style.transform = `scaleX(${(v.currentTime / v.duration).toFixed(4)})`;
+    });
+    if (fp.classList.contains('is-on') && fpv.duration) fph.style.transform = `scaleX(${(fpv.currentTime / fpv.duration).toFixed(4)})`;
+  });
+}
+
+// 5 · ÍNDICE PEEK — hovering/focusing a chapter shows a still from it (desktop)
+function initPeek() {
+  const box = $('.statement__peek');
+  const img = $('img', box);
+  if (!box || getComputedStyle(box).display === 'none') return;
+  let cur = img.src;
+  const show = (url) => {
+    if (!url || url === cur) return;
+    cur = url;
+    const next = new Image();
+    next.src = url;
+    next.decode?.().catch(() => {}).finally(() => {
+      if (cur !== url) return;
+      if (RM) { img.src = url; return; }
+      gsap.timeline()
+        .to(img, { clipPath: 'inset(0% 0% 0% 100%)', duration: 0.28, ease: 'power2.in' })
+        .add(() => { img.src = url; })
+        .fromTo(img, { clipPath: 'inset(0% 100% 0% 0%)', scale: 1.08 }, { clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 0.7, ease: 'expo.out' });
+    });
+  };
+  $$('.toc a').forEach((a) => {
+    a.addEventListener('mouseenter', () => show(a.dataset.peek));
+    a.addEventListener('focus', () => show(a.dataset.peek));
+  });
+}
+
+// 6 · MAGNETIC — only the primary action, a small pull toward the pointer
+function initMagnetic() {
+  if (!FINE || RM) return;
+  $$('[data-magnetic]').forEach((btn) => {
+    const ring = $('.btn-reel__ring', btn);
+    const xTo = gsap.quickTo(ring, 'x', { duration: 0.6, ease: 'power3.out' });
+    const yTo = gsap.quickTo(ring, 'y', { duration: 0.6, ease: 'power3.out' });
+    btn.addEventListener('mousemove', (e) => {
+      const r = ring.getBoundingClientRect();
+      xTo((e.clientX - (r.left + r.width / 2)) * 0.35);
+      yTo((e.clientY - (r.top + r.height / 2)) * 0.35);
+    });
+    btn.addEventListener('mouseleave', () => { xTo(0); yTo(0); });
+  });
+}
+
 /* Block Office: vertical scroll → horizontal travel (desktop) with progress */
 function initBlock() {
   const total = campaigns.block.items.length;
@@ -617,9 +730,6 @@ function initBlock() {
   const bar = $('.block__bar');
   const items = $$('.block__item');
   // pinned (vertical scroll drives it) only on wide screens without reduced motion; otherwise it is a native swipe
-  const touch = window.matchMedia('(max-width: 860px), (prefers-reduced-motion: reduce)').matches;
-  $('.hint-touch').hidden = !touch;
-  $('.hint-scroll').hidden = touch;
   const mm = gsap.matchMedia();
   mm.add('(min-width: 861px) and (prefers-reduced-motion: no-preference)', () => {
     const pin = $('.block__pin');
@@ -635,10 +745,18 @@ function initBlock() {
         let best = 0, bd = Infinity;
         items.forEach((it, i) => { const r = it.getBoundingClientRect(); const d = Math.abs(r.left + r.width / 2 - mid); if (d < bd) { bd = d; best = i; } });
         const txt = `${pad(best + 1)} / ${pad(total)}`;
-        if (count.textContent !== txt) count.textContent = txt;
+        if (count.textContent !== txt) {
+          count.textContent = txt;
+          items.forEach((it, i) => it.classList.toggle('is-current', i === best));
+        }
       },
-      scrollTrigger: { trigger: pin, start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1 },
+      scrollTrigger: {
+        trigger: pin, start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1,
+        onToggle: (st) => $('.block').classList.toggle('is-pinned', st.isActive),
+      },
     });
+    items[0]?.classList.add('is-current');
+    return () => $('.block').classList.remove('is-pinned');
   });
 }
 
@@ -781,9 +899,12 @@ initCursor();
 initHeader(lenis);
 initPreviews();
 initFloatPreview();
+initPlayheads();
 preload().then(() => {
   initHero();
   initReveals();
+  initPeek();
+  initMagnetic();
   if (!RM) {
     gsap.from('.hero__logo', { yPercent: 30, opacity: 0, duration: 1.4, ease: 'expo.out' });
     gsap.from(['.hero__top', '.hero__bottom'], { opacity: 0, duration: 1, delay: 0.3 });

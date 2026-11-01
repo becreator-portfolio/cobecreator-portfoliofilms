@@ -69,26 +69,14 @@ export const series = {
   stills: ['ep1', 'ep2', 'ep3', 'ep6', 'ep7'],
 };
 
+// Ordem pensada para o grid de 6 colunas (2+3+1 / 3+2) e de 3 colunas no tablet.
 export const social = [
   {
     client: 'Storytrapping × Ryu, the Runner',
-    note: 'Entrevista · Evento',
+    note: 'Entrevista',
     items: [
       { id: 's-ryu', title: 'Entrevista' },
       { id: 's-ryuevt', title: 'Evento Block Office & Ryu' },
-    ],
-  },
-  {
-    client: 'Charles Santos × Storytrapping',
-    note: 'Storytelling',
-    items: [{ id: 's-xtranho', title: 'Xtranho' }],
-  },
-  {
-    client: 'Eduardo Cidade',
-    note: 'Imobiliário · After Effects',
-    items: [
-      { id: 's-edu1', title: 'Visita de imóvel' },
-      { id: 's-edu2', title: 'Vista panorâmica' },
     ],
   },
   {
@@ -101,12 +89,25 @@ export const social = [
     ],
   },
   {
+    client: 'Charles Santos × Storytrapping',
+    note: 'Storytelling',
+    items: [{ id: 's-xtranho', title: 'Xtranho' }],
+  },
+  {
     client: 'Buffalo Boxing Club',
     note: 'Esporte',
     items: [
       { id: 's-buffalo', title: 'Horários' },
       { id: 's-buffalo-treino', title: 'Treino' },
       { id: 's-buffalo-peterson', title: 'Campeonato Gaúcho 2026' },
+    ],
+  },
+  {
+    client: 'Eduardo Cidade',
+    note: 'Imobiliário',
+    items: [
+      { id: 's-edu1', title: 'Visita de imóvel' },
+      { id: 's-edu2', title: 'Vista panorâmica' },
     ],
   },
 ];
