@@ -53,14 +53,14 @@ const card = (item, opts, c, extra = '') => `<figure class="card" data-reveal ${
 const counts = {
   films: films.length,
   clips: clips.length,
-  campaigns: 2 + campaigns.block.items.length + campaigns.lv.items.length,
+  campaigns: 1 + campaigns.block.items.length + campaigns.lv.items.length,
   series: series.episodes,
   social: social.reduce((a, g) => a + g.items.length, 0),
 };
 const chapters = [
   ['filmes', 'Filmes', counts.films, src('f-vibe', 'poster.webp')],
   ['clipes', 'Clipes', counts.clips, src('c-sol', 'poster.webp')],
-  ['campanhas', 'Campanhas', counts.campaigns, src('k-tz', 'poster.webp')],
+  ['campanhas', 'Campanhas', counts.campaigns, src('b-berga', 'poster.webp')],
   ['serie', 'Série', counts.series, src('serie', 'poster.webp')],
   ['social', 'Social', counts.social, src('s-ryu', 'poster.webp')],
 ];
@@ -133,7 +133,7 @@ function render() {
           <h3 class="ptitle">${sc.title}</h3>
           <span class="mono dim">${sc.kind} · ${dur(sc.id)}</span>
         </div>
-        <p class="case__line">${sc.line}</p>
+        <p class="case__line">${sc.line.map((l) => `<span>${l}</span>`).join('')}</p>
         <ol class="case__board" aria-label="Storyboard — ${sc.title}">
           ${sc.board
             .map(
@@ -142,18 +142,6 @@ function render() {
             )
             .join('')}
         </ol>
-      </div>
-    </div>`;
-
-  // TZ
-  const tz = campaigns.tz;
-  reg('tz', [{ ...tz }]);
-  $('[data-tz]').innerHTML = `
-    <div class="tz" data-tz-wrap>
-      ${frame(tz, { list: 'tz', idx: 0, ratio: 'auto' })}
-      <div class="tz__info">
-        <h3 class="tz__t ptitle">${tz.title}</h3>
-        <span class="mono">${dur(tz.id)}</span>
       </div>
     </div>`;
 
@@ -194,28 +182,47 @@ function render() {
       ${lv.items.map((it, i) => card(it, { list: 'lv', idx: i, ratio: '16 / 9' }, { n: pad(i + 1), t: it.title, m: dur(it.id) })).join('')}
     </div>`;
 
-  // Série
+  // Série — seletor de episódios com player embutido + card do canal
   const ytList = `https://www.youtube.com/playlist?list=${series.playlist}`;
+  const epN = series.stills.length;
   $('[data-series]').innerHTML = `
     <div class="series">
       <div class="series__info">
         <h3 class="ptitle">${series.title}</h3>
-        <span class="mono dim">${series.channel}</span>
-        <div class="series__actions">
-          <button class="btn-line mono" data-yt aria-label="Assistir ${series.title}"><span class="btn-reel__icon" aria-hidden="true"></span>Assistir</button>
-          <a class="link-ext mono" href="${ytList}" target="_blank" rel="noopener">YouTube ↗</a>
+        <div class="channel" aria-label="Canal ${series.channel} no YouTube: ${series.subscribers} mil inscritos">
+          <div class="channel__banner" aria-hidden="true"><img src="${src('serie', 'canal-marca.webp')}" alt="" loading="lazy" decoding="async" /></div>
+          <div class="channel__row">
+            <img class="channel__avatar" src="${src('serie', 'canal-avatar.webp')}" alt="" loading="lazy" decoding="async" />
+            <div class="channel__meta"><span class="channel__name">${series.channel}</span><span class="mono dim">YouTube</span></div>
+          </div>
+          <p class="channel__stat" aria-hidden="true"><span class="channel__n" data-subs="${series.subscribers}">${series.subscribers}</span><span class="channel__u">mil</span><span class="mono dim">inscritos</span></p>
         </div>
+        <a class="link-ext mono" href="${ytList}" target="_blank" rel="noopener">Playlist no YouTube ↗</a>
       </div>
       <div class="series__stage">
-        <div class="frame" role="button" tabindex="0" data-yt data-cursor="Assistir · ${pad(series.episodes)} episódios" aria-label="Assistir ${series.title} — playlist" style="aspect-ratio:16/9">
-          <div class="frame__inner">
-            <img src="${src('serie', 'poster.webp')}" alt="" loading="lazy" decoding="async" />
-            <video muted loop playsinline preload="none" data-src="${src('serie', 'preview.mp4')}"></video>
-          </div>
-          <span class="playhead" aria-hidden="true"></span>
+        <div class="ep-screen" data-cursor="Assistir">
+          <img class="ep-screen__img" src="${src('serie', series.stills[0] + '.webp')}" alt="" decoding="async" />
+          <span class="ep-screen__label mono" aria-hidden="true">EP <span data-ep-cur>01</span> / ${pad(epN)}</span>
+          <button class="ep-screen__play" data-ep-play>
+            <span class="btn-reel__ring" aria-hidden="true"><span class="btn-reel__icon"></span></span>
+            <span class="mono">Assistir EP <span data-ep-cur>01</span></span>
+          </button>
+          <div class="ep-screen__player"></div>
         </div>
-        <div class="series__stills" aria-hidden="true">
-          ${series.stills.map((s) => `<div class="frame" data-yt data-cursor="Assistir"><div class="frame__inner"><img src="${src('serie', s + '.webp')}" alt="" loading="lazy" decoding="async" /></div></div>`).join('')}
+        <div class="ep-bar">
+          <ol class="ep-rail" aria-label="Episódios">
+            ${series.stills
+              .map(
+                (s, i) => `<li${i === 0 ? ' class="is-active"' : ''}><button class="ep" data-ep="${i}" aria-pressed="${i === 0}" aria-label="Episódio ${pad(i + 1)}" data-cursor="EP ${pad(i + 1)}">
+                  <img src="${src('serie', s + '.webp')}" alt="" loading="lazy" decoding="async" /><span class="ep__n mono">${pad(i + 1)}</span><span class="ep__bar" aria-hidden="true"></span></button></li>`
+              )
+              .join('')}
+          </ol>
+          <div class="ep-nav mono">
+            <button data-ep-step="-1" aria-label="Episódio anterior">←</button>
+            <span class="dim" aria-live="polite"><span data-ep-cur>01</span> / ${pad(epN)}</span>
+            <button data-ep-step="1" aria-label="Próximo episódio">→</button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -283,7 +290,7 @@ function initPreviews() {
   });
   if (RM) return;
   // autoplay while well inside the viewport: TZ, Block Office, social, série; on touch screens: everything
-  const auto = frames.filter((f) => !FINE || f.closest('.tz, .block, .sgroup__row, .series__stage'));
+  const auto = frames.filter((f) => !FINE || f.closest('.case, .block, .sgroup__row'));
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
@@ -466,20 +473,6 @@ const player = {
     this.show(srcEl);
     this.load();
   },
-  openEmbed(srcEl = null) {
-    this.prepare();
-    this.list = [{ title: series.title }];
-    this.el.classList.add('is-embed');
-    $('.player__title').textContent = `${series.title} — ${series.channel}`;
-    $('.player__meta').textContent = `Playlist · ${series.episodes} episódios · YouTube`;
-    $('.player__pos').textContent = '';
-    $('.player__prev').hidden = $('.player__next').hidden = true;
-    const yt = $('.player__yt');
-    yt.href = `https://www.youtube.com/playlist?list=${series.playlist}`;
-    yt.hidden = false;
-    $('.player__embed').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${series.firstVideo}?list=${series.playlist}&autoplay=1&rel=0&modestbranding=1" title="${series.title} — playlist no YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
-    this.show(srcEl);
-  },
   // the frame grows out of the piece that was clicked: spatial continuity between page and player
   sourceRect(srcEl) {
     if (!srcEl) return null;
@@ -539,8 +532,6 @@ const player = {
 
 function initOpeners() {
   document.addEventListener('click', (e) => {
-    const yt = e.target.closest('[data-yt]');
-    if (yt) return player.openEmbed(yt.classList.contains('frame') ? yt : $('.series__stage > .frame'));
     const o = e.target.closest('[data-open]');
     if (o) return player.open(o.dataset.open, 0, null);
     const sk = e.target.closest('[data-seek]');
@@ -620,7 +611,7 @@ function initMorph() {
   });
   // contact: the address expands as the page closes — mirrors the opening statement
   const ma = $('.contact__mail .mail-a');
-  if (ma) gsap.fromTo(ma, { fontStretch: '62%' }, { fontStretch: '125%', ease: 'none', scrollTrigger: { trigger: '.contact', start: 'top bottom', end: 'top 35%', scrub: 0.4 } });
+  if (ma) gsap.fromTo(ma, { fontStretch: '62%' }, { fontStretch: '125%', ease: 'none', scrollTrigger: { trigger: '.contact', start: 'top bottom', end: 'bottom bottom', scrub: 0.4 } });
 }
 
 // 2 · COUNTS roll up when the header enters
@@ -664,12 +655,16 @@ function initReveals() {
     shutter([$('.frame', c)], c);
     gsap.from($('.cap', c), { opacity: 0, y: 10, duration: 0.9, delay: 0.35, ease: 'power3.out', scrollTrigger: { trigger: c, start: 'top 88%' } });
   });
-  shutter($$('.series__stage > .frame'), '.series__stage');
+  gsap.fromTo('.ep-screen', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.25, ease: 'expo.out', clearProps: 'clipPath', scrollTrigger: { trigger: '.series__stage', start: 'top 88%' } });
+  gsap.from('.ep-rail li', { opacity: 0, y: 18, duration: 0.9, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: '.ep-rail', start: 'top 95%' } });
+  gsap.from(['.channel', '.series__info .link-ext'], { opacity: 0, y: 20, duration: 1, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: '.channel', start: 'top 90%' } });
+  // subscribers count up — the number is the point of the card
+  const subs = $('[data-subs]');
+  if (subs) { const o = { v: 0 }; ScrollTrigger.create({ trigger: subs, start: 'top 90%', once: true, onEnter: () => gsap.to(o, { v: +subs.dataset.subs, duration: 1.4, ease: 'power3.out', onUpdate: () => (subs.textContent = Math.round(o.v)) }) }); subs.textContent = '0'; }
   shutter($$('.case__media .frame'), '.case');
   gsap.from('.case__board li', { opacity: 0, y: 18, duration: 0.9, ease: 'expo.out', stagger: 0.07, scrollTrigger: { trigger: '.case__board', start: 'top 92%' } });
   gsap.from(['.case__head', '.case__line'], { opacity: 0, y: 24, duration: 1, ease: 'expo.out', stagger: 0.12, scrollTrigger: { trigger: '.case', start: 'top 80%' } });
   gsap.fromTo('.case__line', { fontStretch: '62%' }, { fontStretch: '82%', ease: 'none', scrollTrigger: { trigger: '.case__line', start: 'top bottom', end: 'top 45%', scrub: 0.4 } });
-  gsap.from('.series__stills .frame', { opacity: 0, y: 16, duration: 0.9, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: '.series__stills', start: 'top 95%' } });
   $$('.sgroup').forEach((g) => shutter($$('.frame', g), g, 0.08));
   $$('.index__row, .sgroup__head, .lv__head, .series__info').forEach((el) => {
     gsap.from(el, { opacity: 0, y: 24, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 94%' } });
@@ -679,13 +674,6 @@ function initReveals() {
   $$('.films .frame__inner, .lv .frame__inner, .series__stage > .frame .frame__inner').forEach((inner) => {
     gsap.fromTo(inner, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: inner.parentNode, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
-
-  // TZ: the frame opens like a shutter, scrubbed
-  const tz = $('[data-tz-wrap] .frame');
-  if (tz) {
-    gsap.fromTo(tz, { clipPath: 'inset(14% 18% 14% 18%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: '[data-tz-wrap]', start: 'top bottom', end: 'top 15%', scrub: true } });
-    gsap.from('.tz__info', { opacity: 0, y: 30, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '[data-tz-wrap]', start: 'top 40%' } });
-  }
 
   // contact: letters lift under the pointer
   if (FINE) {
@@ -756,6 +744,99 @@ function initMagnetic() {
     });
     btn.addEventListener('mouseleave', () => { xTo(0); yTo(0); });
   });
+}
+
+/* Série: trocar de episódio sem sair da página.
+   Primeiro clique monta o player do YouTube (API oficial, host nocookie) no episódio escolhido;
+   depois, o trilho troca o vídeo com playVideoAt. Sem a API (bloqueada/offline), cai para um iframe da playlist. */
+function initSeries() {
+  const screen = $('.ep-screen');
+  if (!screen) return;
+  const img = $('.ep-screen__img', screen);
+  const mount = $('.ep-screen__player', screen);
+  const items = $$('.ep-rail li');
+  const total = items.length;
+  let cur = 0, live = false, yt = null, shown = img.src;
+
+  const stillOf = (i) => $('img', items[i]).src;
+  const swap = (url) => {
+    if (live || !url || url === shown) return;
+    shown = url;
+    if (RM) { img.src = url; return; }
+    gsap.timeline()
+      .to(img, { clipPath: 'inset(0% 0% 0% 100%)', duration: 0.25, ease: 'power2.in' })
+      .add(() => { img.src = url; })
+      .fromTo(img, { clipPath: 'inset(0% 100% 0% 0%)', scale: 1.06 }, { clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 0.7, ease: 'expo.out' });
+  };
+  const mark = (i) => {
+    cur = i;
+    items.forEach((li, k) => { li.classList.toggle('is-active', k === i); $('button', li).setAttribute('aria-pressed', String(k === i)); });
+    $$('[data-ep-cur]').forEach((el) => (el.textContent = pad(i + 1)));
+    screen.dataset.cursor = `Assistir EP ${pad(i + 1)}`;
+    $('[data-ep-play]').setAttribute('aria-label', `Assistir episódio ${pad(i + 1)}`);
+  };
+  const fallback = (i) => {
+    mount.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${series.playlist}&index=${i}&autoplay=1&rel=0&playsinline=1" title="${series.title} — episódio ${pad(i + 1)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  };
+  const loadAPI = () =>
+    new Promise((res, rej) => {
+      if (window.YT?.Player) return res(window.YT);
+      const t = setTimeout(() => rej(new Error('timeout')), 6000);
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { clearTimeout(t); prev?.(); res(window.YT); };
+      const sc = document.createElement('script');
+      sc.src = 'https://www.youtube.com/iframe_api';
+      sc.onerror = () => { clearTimeout(t); rej(new Error('blocked')); };
+      document.head.appendChild(sc);
+    });
+  const start = (i) => {
+    playing.forEach(stopPreview);
+    if (live) {
+      if (yt?.playVideoAt) yt.playVideoAt(i);
+      else fallback(i);
+      return;
+    }
+    live = true;
+    screen.classList.add('is-live');
+    const host = document.createElement('div');
+    mount.appendChild(host);
+    loadAPI()
+      .then((YT) => {
+        yt = new YT.Player(host, {
+          host: 'https://www.youtube-nocookie.com',
+          width: '100%', height: '100%',
+          playerVars: { listType: 'playlist', list: series.playlist, index: i, autoplay: 1, rel: 0, playsinline: 1, modestbranding: 1 },
+          events: {
+            onStateChange: () => {
+              const j = yt.getPlaylistIndex?.();
+              if (typeof j === 'number' && j >= 0 && j < total && j !== cur) mark(j);
+            },
+          },
+        });
+      })
+      .catch(() => fallback(i));
+  };
+  const select = (i, play) => {
+    i = (i + total) % total;
+    mark(i);
+    swap(stillOf(i));
+    if (play || live) start(i);
+  };
+
+  $$('.ep').forEach((b) => {
+    const i = +b.dataset.ep;
+    b.addEventListener('click', () => select(i, true));
+    if (FINE) b.addEventListener('mouseenter', () => swap(stillOf(i)));
+    b.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      $$('.ep')[(i + (e.key === 'ArrowRight' ? 1 : -1) + total) % total].focus();
+    });
+  });
+  if (FINE) $('.ep-rail').addEventListener('mouseleave', () => swap(stillOf(cur)));
+  $$('[data-ep-step]').forEach((b) => b.addEventListener('click', () => select(cur + +b.dataset.epStep, false)));
+  $('[data-ep-play]').addEventListener('click', () => start(cur));
+  img.addEventListener('click', () => start(cur));
 }
 
 /* Block Office: vertical scroll → horizontal travel (desktop) with progress */
@@ -935,6 +1016,7 @@ initHeader(lenis);
 initPreviews();
 initFloatPreview();
 initPlayheads();
+initSeries();
 preload().then(() => {
   initHero();
   initReveals();

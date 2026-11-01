@@ -41,7 +41,7 @@ export const campaigns = {
     id: 'k-socializei',
     title: 'Socializei',
     kind: 'Anúncio',
-    line: 'A IA sugere. Você escolhe.', // frase do próprio anúncio
+    line: ['Encontre as', 'palavras certas.'], // fechamento do próprio anúncio, sempre em 2 linhas
     board: [
       { img: 'still1', t: 2.8 },
       { img: 'still2', t: 6.2 },
@@ -51,7 +51,6 @@ export const campaigns = {
       { img: 'still6', t: 19.9 },
     ],
   },
-  tz: { id: 'k-tz', title: 'TZ da Coronel & OÜS 18K', kind: 'Campanha' },
   block: {
     title: 'Block Office',
     kind: 'Campanha · Marca',
@@ -78,10 +77,11 @@ export const campaigns = {
 export const series = {
   title: 'O Peso da História',
   channel: 'Laerte Viana na Área',
+  subscribers: 245, // mil inscritos no YouTube (informado pelo autor)
   episodes: 7,
   playlist: 'PLPoEmTEsykRsTGYeMMsUao8u0DE1dttgc',
   firstVideo: 'H-G3O5IVWKo',
-  stills: ['ep1', 'ep2', 'ep3', 'ep6', 'ep7'],
+  stills: ['ep1', 'ep2', 'ep3', 'ep4', 'ep5', 'ep6', 'ep7'],
 };
 
 // Ordem pensada para o grid de 6 colunas no desktop: 4+2 / 3+3.

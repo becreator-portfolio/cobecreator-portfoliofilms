@@ -53,7 +53,8 @@ Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assin
 - Vídeos só carregam quando necessários: previews no hover (desktop) ou quando o quadro está visível (touch); o player só carrega a versão completa ao abrir.
 - `prefers-reduced-motion`: sem smooth scroll, sem parallax, sem flash, sem autoplay.
 - `Save-Data`: sem previews automáticos.
-- Série (O Peso da História) abre a playlist do YouTube via `youtube-nocookie`, só ao clicar; há também link direto para o YouTube.
+- Série (O Peso da História): trilho de 7 episódios; passar o cursor troca o quadro do palco, clicar toca o episódio no próprio palco (API do YouTube, host `youtube-nocookie`; sem a API, cai para iframe da playlist no índice escolhido). Card do canal com 245 mil inscritos (dado informado pelo autor; atualizar em `src/data.js`).
+- Reel: 'Comic Urban Realism' ampliado de 956×718 para 1920×1440 com reamostragem lanczos + redução de ruído leve + nitidez adaptativa (ffmpeg `cas`).
 - No máximo 4 vídeos de preview tocam ao mesmo tempo.
 - Player: ← → navegam entre trabalhos, M silencia, F tela cheia, Esc fecha; a interface some após 2,6 s sem movimento (desktop).
 - Áreas de toque ≥ 44 px; foco visível; foco preso no player e no menu.
