@@ -193,9 +193,12 @@ function render() {
           <div class="channel__banner" aria-hidden="true"><img src="${src('serie', 'canal-marca.webp')}" alt="" loading="lazy" decoding="async" /></div>
           <div class="channel__row">
             <img class="channel__avatar" src="${src('serie', 'canal-avatar.webp')}" alt="" loading="lazy" decoding="async" />
-            <div class="channel__meta"><span class="channel__name">${series.channel}</span><span class="mono dim">YouTube</span></div>
+            <div class="channel__meta"><span class="channel__name">${series.channel}</span></div>
           </div>
-          <p class="channel__stat" aria-hidden="true"><span class="channel__n" data-subs="${series.subscribers}">${series.subscribers}</span><span class="channel__u">mil</span><span class="mono dim">inscritos</span></p>
+          <div class="channel__foot">
+            <p class="channel__stat" aria-hidden="true"><span class="channel__n" data-subs="${series.subscribers}">${series.subscribers}</span><span class="channel__u">mil</span><span class="mono dim">inscritos</span></p>
+            <svg class="channel__yt" viewBox="0 0 28 20" role="img" aria-label="YouTube"><rect width="28" height="20" rx="5.6" fill="#FF0000"/><path d="M11.2 5.7 18.6 10l-7.4 4.3z" fill="#fff"/></svg>
+          </div>
         </div>
         <a class="link-ext mono" href="${ytList}" target="_blank" rel="noopener">Playlist no YouTube ↗</a>
       </div>
@@ -1008,16 +1011,11 @@ function fitStatement() {
   const a = $('.statement__a');
   const b = $('.statement__b');
   if (!root || !a || !b) return;
-  if (!window.matchMedia('(min-width: 1025px)').matches) {
-    root.style.removeProperty('--fs-a');
-    root.style.removeProperty('--fs-b');
-    return;
-  }
-  const measure = (el, stretch, weight, tracking) => {
+  const measure = (el, stretch, weight, tracking, transform = 'uppercase') => {
     const s = document.createElement('span');
     s.textContent = el.textContent;
     Object.assign(s.style, {
-      position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap', textTransform: 'uppercase',
+      position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap', textTransform: transform,
       fontFamily: getComputedStyle(el).fontFamily, fontSize: '100px', fontWeight: weight, fontStretch: stretch, letterSpacing: tracking,
     });
     document.body.appendChild(s);
@@ -1031,6 +1029,19 @@ function fitStatement() {
   const boxB = b.parentNode.getBoundingClientRect().width;
   root.style.setProperty('--fs-a', `${((100 * boxA) / wa) * 0.992}px`);
   root.style.setProperty('--fs-b', `${((100 * boxB) / wb) * 0.992}px`);
+  fitMail(measure);
+}
+
+/* Contato (celular/tablet): o endereço inteiro numa linha, ocupando a largura útil. */
+function fitMail(measure) {
+  const mail = $('.contact__mail');
+  if (!mail) return;
+  if (window.matchMedia('(min-width: 1025px)').matches) { mail.style.removeProperty('--fs-mail'); return; }
+  const a = $('.mail-a', mail), b = $('.mail-b', mail);
+  const wa = measure(a, '125%', '900', '-0.035em', 'lowercase');
+  const wb = measure(b, '62%', '800', '-0.035em', 'lowercase') + 8; // + padding-left 0.08em (a 100px)
+  const box = mail.parentNode.getBoundingClientRect().width - parseFloat(getComputedStyle(mail.parentNode).paddingLeft) - parseFloat(getComputedStyle(mail.parentNode).paddingRight);
+  mail.style.setProperty('--fs-mail', `${((100 * box) / (wa + wb)) * 0.985}px`);
 }
 
 /* ─────────────────────────────── boot */
