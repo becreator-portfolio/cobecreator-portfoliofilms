@@ -78,11 +78,21 @@ export const campaigns = {
 export const series = {
   title: 'O Peso da História',
   channel: 'Laerte Viana na Área',
-  subscribers: 245, // mil inscritos no YouTube (informado pelo autor)
+  subscribers: 245, // mil inscritos no YouTube (conferido na página do canal)
   episodes: 7,
   playlist: 'PLPoEmTEsykRsTGYeMMsUao8u0DE1dttgc',
   firstVideo: 'H-G3O5IVWKo',
-  stills: ['ep1', 'ep2', 'ep3', 'ep4', 'ep5', 'ep6', 'ep7'],
+  // Ordem da série (#1 → #7). A playlist no YouTube está invertida: idx = posição na playlist.
+  // Títulos oficiais dos vídeos; thumbs oficiais em /media/serie/thumbN(.webp | -s.webp).
+  list: [
+    { n: 1, id: 'E879YXyR9Po', idx: 6, title: 'Como Islam Makhachev deixou Khabib para trás e se tornou o maior russo da história do UFC' },
+    { n: 2, id: '0wK6OA1so84', idx: 5, title: 'O Romário do UFC: como Carlos Prates se tornou o preferido dos fãs brasileiros' },
+    { n: 3, id: '9VSoEZmZOJU', idx: 4, title: 'Feito histórico: como Poatan quebrou o trash talk e criou uma nova era no UFC' },
+    { n: 4, id: 'W7duGjcHA2A', idx: 3, title: 'Brasil x México: como Diego Lopes foi injustiçado pelos fãs brasileiros (UFC 325)' },
+    { n: 5, id: 'AwWvhGyqWMA', idx: 2, title: 'Esperavam por essa? Como a Fighting Nerds calou os h4t3rs e deu a volta por cima' },
+    { n: 6, id: '20L5h-9aJDM', idx: 1, title: 'Reviravolta: o porquê Charles do Bronxs é o verdadeiro BMF do UFC' },
+    { n: 7, id: 'H-G3O5IVWKo', idx: 0, title: 'Nova era: como a Chute Boxe Diego Lima se reinventou e calou os críticos no UFC' },
+  ],
 };
 
 // Ordem pensada para o grid de 6 colunas no desktop: 4+2 / 3+3.

@@ -53,7 +53,7 @@ Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assin
 - Vídeos só carregam quando necessários: previews no hover (desktop) ou quando o quadro está visível (touch); o player só carrega a versão completa ao abrir.
 - `prefers-reduced-motion`: sem smooth scroll, sem parallax, sem flash, sem autoplay.
 - `Save-Data`: sem previews automáticos.
-- Série (O Peso da História): trilho de 7 episódios; passar o cursor troca o quadro do palco, clicar toca o episódio no próprio palco (API do YouTube, host `youtube-nocookie`; sem a API, cai para iframe da playlist no índice escolhido). Card do canal com 245 mil inscritos (dado informado pelo autor; atualizar em `src/data.js`).
+- Série (O Peso da História): trilho de 7 episódios; passar o cursor troca o quadro do palco, clicar toca o episódio no próprio palco (API do YouTube, host `youtube-nocookie`; sem a API, cai para iframe da playlist no índice escolhido). Trilho na ordem da série (#1→#7) com as thumbs oficiais; a playlist no YouTube está invertida, então cada episódio guarda sua posição (`idx`) em `src/data.js`. Card do canal com foto e banner oficiais e 245 mil inscritos (conferido na página do canal).
 - Reel: 'Comic Urban Realism' ampliado de 956×718 para 1920×1440 com IA (Real-ESRGAN `realesr-general-x4v3`, executado via ONNX Runtime na CPU, ~6 s/quadro), áudio original preservado.
 - No máximo 4 vídeos de preview tocam ao mesmo tempo.
 - Player: ← → navegam entre trabalhos, M silencia, F tela cheia, Esc fecha; a interface some após 2,6 s sem movimento (desktop).

@@ -184,13 +184,14 @@ function render() {
 
   // Série — seletor de episódios com player embutido + card do canal
   const ytList = `https://www.youtube.com/playlist?list=${series.playlist}`;
-  const epN = series.stills.length;
+  const eps = series.list;
+  const epN = eps.length;
   $('[data-series]').innerHTML = `
     <div class="series">
       <div class="series__info">
         <h3 class="ptitle">${series.title}</h3>
         <div class="channel" aria-label="Canal ${series.channel} no YouTube: ${series.subscribers} mil inscritos">
-          <div class="channel__banner" aria-hidden="true"><img src="${src('serie', 'canal-marca.webp')}" alt="" loading="lazy" decoding="async" /></div>
+          <div class="channel__banner" aria-hidden="true"><img src="${src('serie', 'canal-banner.webp')}" alt="" loading="lazy" decoding="async" /></div>
           <div class="channel__row">
             <img class="channel__avatar" src="${src('serie', 'canal-avatar.webp')}" alt="" loading="lazy" decoding="async" />
             <div class="channel__meta"><span class="channel__name">${series.channel}</span></div>
@@ -204,26 +205,24 @@ function render() {
       </div>
       <div class="series__stage">
         <div class="ep-screen" data-cursor="Assistir">
-          <img class="ep-screen__img" src="${src('serie', series.stills[0] + '.webp')}" alt="" decoding="async" />
-          <span class="ep-screen__label mono" aria-hidden="true">EP <span data-ep-cur>01</span> / ${pad(epN)}</span>
-          <button class="ep-screen__play" data-ep-play>
+          <img class="ep-screen__img" src="${src('serie', 'thumb1.webp')}" alt="" decoding="async" />
+          <button class="ep-screen__play" data-ep-play aria-label="Assistir episódio 01: ${esc(eps[0].title)}">
             <span class="btn-reel__ring" aria-hidden="true"><span class="btn-reel__icon"></span></span>
-            <span class="mono">Assistir EP <span data-ep-cur>01</span></span>
           </button>
           <div class="ep-screen__player"></div>
         </div>
         <div class="ep-bar">
           <ol class="ep-rail" aria-label="Episódios">
-            ${series.stills
+            ${eps
               .map(
-                (s, i) => `<li${i === 0 ? ' class="is-active"' : ''}><button class="ep" data-ep="${i}" aria-pressed="${i === 0}" aria-label="Episódio ${pad(i + 1)}" data-cursor="EP ${pad(i + 1)}">
-                  <img src="${src('serie', s + '.webp')}" alt="" loading="lazy" decoding="async" /><span class="ep__n mono">${pad(i + 1)}</span><span class="ep__bar" aria-hidden="true"></span></button></li>`
+                (e, i) => `<li${i === 0 ? ' class="is-active"' : ''}><button class="ep" data-ep="${i}" data-full="${src('serie', `thumb${e.n}.webp`)}" aria-pressed="${i === 0}" aria-label="Episódio ${pad(e.n)}: ${esc(e.title)}" data-cursor="EP ${pad(e.n)}">
+                  <img src="${src('serie', `thumb${e.n}-s.webp`)}" alt="" loading="lazy" decoding="async" /><span class="ep__bar" aria-hidden="true"></span></button></li>`
               )
               .join('')}
           </ol>
           <div class="ep-nav mono">
             <button data-ep-step="-1" aria-label="Episódio anterior">←</button>
-            <span class="dim" aria-live="polite"><span data-ep-cur>01</span> / ${pad(epN)}</span>
+            <p class="ep-info" aria-live="polite"><span class="dim">EP <span data-ep-cur>01</span> / ${pad(epN)}</span><span class="ep-info__t" data-ep-title>${eps[0].title}</span></p>
             <button data-ep-step="1" aria-label="Próximo episódio">→</button>
           </div>
         </div>
@@ -761,7 +760,8 @@ function initSeries() {
   const total = items.length;
   let cur = 0, live = false, yt = null, shown = img.src;
 
-  const stillOf = (i) => $('img', items[i]).src;
+  const eps = series.list;
+  const stillOf = (i) => $('button', items[i]).dataset.full;
   const swap = (url) => {
     if (live || !url || url === shown) return;
     shown = url;
@@ -774,12 +774,14 @@ function initSeries() {
   const mark = (i) => {
     cur = i;
     items.forEach((li, k) => { li.classList.toggle('is-active', k === i); $('button', li).setAttribute('aria-pressed', String(k === i)); });
-    $$('[data-ep-cur]').forEach((el) => (el.textContent = pad(i + 1)));
-    screen.dataset.cursor = `Assistir EP ${pad(i + 1)}`;
-    $('[data-ep-play]').setAttribute('aria-label', `Assistir episódio ${pad(i + 1)}`);
+    const n = pad(eps[i].n);
+    $$('[data-ep-cur]').forEach((el) => (el.textContent = n));
+    $('[data-ep-title]').textContent = eps[i].title;
+    screen.dataset.cursor = `Assistir EP ${n}`;
+    $('[data-ep-play]').setAttribute('aria-label', `Assistir episódio ${n}: ${eps[i].title}`);
   };
   const fallback = (i) => {
-    mount.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${series.playlist}&index=${i}&autoplay=1&rel=0&playsinline=1" title="${series.title} — episódio ${pad(i + 1)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    mount.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${series.playlist}&index=${eps[i].idx}&autoplay=1&rel=0&playsinline=1" title="${series.title} — episódio ${pad(eps[i].n)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
   };
   const loadAPI = () =>
     new Promise((res, rej) => {
@@ -795,7 +797,7 @@ function initSeries() {
   const start = (i) => {
     playing.forEach(stopPreview);
     if (live) {
-      if (yt?.playVideoAt) yt.playVideoAt(i);
+      if (yt?.playVideoAt) yt.playVideoAt(eps[i].idx);
       else fallback(i);
       return;
     }
@@ -808,11 +810,12 @@ function initSeries() {
         yt = new YT.Player(host, {
           host: 'https://www.youtube-nocookie.com',
           width: '100%', height: '100%',
-          playerVars: { listType: 'playlist', list: series.playlist, index: i, autoplay: 1, rel: 0, playsinline: 1, modestbranding: 1 },
+          playerVars: { listType: 'playlist', list: series.playlist, index: eps[i].idx, autoplay: 1, rel: 0, playsinline: 1, modestbranding: 1 },
           events: {
             onStateChange: () => {
-              const j = yt.getPlaylistIndex?.();
-              if (typeof j === 'number' && j >= 0 && j < total && j !== cur) mark(j);
+              // a playlist pode avançar sozinha: traduz a posição na playlist de volta para o trilho
+              const k = eps.findIndex((e) => e.idx === yt.getPlaylistIndex?.());
+              if (k >= 0 && k !== cur) mark(k);
             },
           },
         });
