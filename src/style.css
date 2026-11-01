@@ -538,7 +538,7 @@ body::after {
 }
 .contact__label { color: var(--mute); }
 .contact__mail { display: block; text-transform: lowercase; line-height: 0.84; letter-spacing: -0.035em; cursor: none; align-self: start; }
-.contact__mail { white-space: nowrap; }
+.contact__mail { white-space: nowrap; padding-block: 12px; margin-block: -12px; } /* área de toque ≥ 44px sem mudar o desenho */
 /* uma linha só em qualquer largura; no celular/tablet o tamanho é medido em JS (fitMail) */
 .contact__mail .mail-a, .contact__mail .mail-b { display: inline; white-space: nowrap; font-size: var(--fs-mail, 8vw); letter-spacing: -0.035em; }
 .contact__mail .mail-a { font-weight: 900; font-stretch: 125%; }
