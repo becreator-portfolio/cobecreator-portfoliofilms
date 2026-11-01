@@ -1000,8 +1000,45 @@ function preload() {
   });
 }
 
+/* Abertura (desktop): cada linha recebe o tamanho exato para preencher sua faixa do grid —
+   linha 1 de margem a margem (largura 125%), linha 2 das colunas 7–12 (largura 62%).
+   Mede o texto real com a fonte carregada, então funciona em qualquer largura de tela. */
+function fitStatement() {
+  const root = $('.statement');
+  const a = $('.statement__a');
+  const b = $('.statement__b');
+  if (!root || !a || !b) return;
+  if (!window.matchMedia('(min-width: 1025px)').matches) {
+    root.style.removeProperty('--fs-a');
+    root.style.removeProperty('--fs-b');
+    return;
+  }
+  const measure = (el, stretch, weight, tracking) => {
+    const s = document.createElement('span');
+    s.textContent = el.textContent;
+    Object.assign(s.style, {
+      position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap', textTransform: 'uppercase',
+      fontFamily: getComputedStyle(el).fontFamily, fontSize: '100px', fontWeight: weight, fontStretch: stretch, letterSpacing: tracking,
+    });
+    document.body.appendChild(s);
+    const w = s.getBoundingClientRect().width;
+    s.remove();
+    return w;
+  };
+  const wa = measure(a, '125%', '900', '-0.025em');
+  const wb = measure(b, '62%', '800', '-0.02em');
+  const boxA = a.parentNode.getBoundingClientRect().width;
+  const boxB = b.parentNode.getBoundingClientRect().width;
+  root.style.setProperty('--fs-a', `${((100 * boxA) / wa) * 0.992}px`);
+  root.style.setProperty('--fs-b', `${((100 * boxB) / wb) * 0.992}px`);
+}
+
 /* ─────────────────────────────── boot */
 render();
+fitStatement();
+document.fonts?.ready.then(() => { fitStatement(); ScrollTrigger.refresh(); });
+let fitT;
+window.addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitStatement, 120); });
 const lenis = RM ? null : new Lenis({ lerp: 0.11, smoothWheel: true });
 if (lenis) {
   lenis.on('scroll', ScrollTrigger.update);

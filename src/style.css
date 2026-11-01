@@ -597,12 +597,28 @@ body::after {
   .btn-reel__ring { width: 60px; height: 60px; }
   .btn-reel__l { font-size: var(--t-m); font-weight: 500; }
 
-  /* abertura: prévia e índice dividem a mesma altura */
+  /* abertura travada no grid de 12 colunas:
+     linha 1 de margem a margem · linha 2 da coluna 7 (eixo do índice) à margem direita ·
+     serviços no vão à esquerda da linha 2 · prévia (1–5) e índice (7–12) com a mesma altura.
+     Os tamanhos --fs-a / --fs-b são medidos em JS para encaixar exatamente na largura. */
   .statement { row-gap: 0; }
-  .statement__text { margin-bottom: clamp(56px, 6vw, 112px); }
-  .statement__peek { grid-column: 1 / span 5; grid-row: 2 / span 2; align-self: stretch; aspect-ratio: 4 / 3; }
-  .statement__craft { grid-column: 7 / -1; grid-row: 2; padding-bottom: 18px; }
-  .toc { grid-column: 7 / -1; grid-row: 3; align-self: stretch; display: flex; flex-direction: column; }
+  .statement__text {
+    grid-column: 1 / -1; grid-row: 1;
+    display: grid; grid-template-columns: subgrid; row-gap: 0;
+    margin-bottom: clamp(64px, 6.4vw, 120px);
+  }
+  .statement__text .line-mask:nth-child(1) { grid-column: 1 / -1; }
+  .statement__text .line-mask:nth-child(2) { grid-column: 7 / -1; }
+  .statement__a { font-size: var(--fs-a, 10vw); line-height: 0.84; letter-spacing: -0.025em; }
+  .statement__b { font-size: var(--fs-b, 10vw); line-height: 0.84; letter-spacing: -0.02em; padding-left: 0; text-align: right; }
+  .statement__craft {
+    grid-column: 1 / span 5; grid-row: 1; align-self: end; z-index: 1;
+    margin-bottom: clamp(64px, 6.4vw, 120px); padding-bottom: 0.4em;
+    max-width: none; line-height: 1.7;
+  }
+  .statement__craft span { display: block; white-space: nowrap; }
+  .statement__peek { grid-column: 1 / span 5; grid-row: 2; align-self: stretch; aspect-ratio: 4 / 3; }
+  .toc { grid-column: 7 / -1; grid-row: 2; align-self: stretch; display: flex; flex-direction: column; }
   .toc ol { flex: 1; display: flex; flex-direction: column; }
   .toc li { flex: 1; display: flex; }
   .toc li a { flex: 1; min-height: 60px; }

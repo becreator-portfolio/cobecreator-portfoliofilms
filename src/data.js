@@ -15,14 +15,15 @@ export const reel = {
 
 // fmt: 'h' horizontal | 'v' vertical
 // Ordem pensada para o desktop: um filme em destaque e depois pares de mesma proporção.
+// Títulos = estilo/conceito de cada filme (nome de trabalho no comentário).
 export const films = [
-  { id: 'f-vibe', title: "Don't Kill My Vibe", fmt: 'h', ratio: '4:3' },
-  { id: 'f-grandmas', title: 'Grandmas Are the Real Gangstas', fmt: 'h', ratio: '4:3' },
-  { id: 'f-escravo', title: 'Escravo Moderno', fmt: 'h', ratio: '4:3' },
-  { id: 'f-loydog1', title: 'Loydog — 01', fmt: 'h', ratio: '4:3' },
-  { id: 'f-loydog2', title: 'Loydog — 02', fmt: 'h', ratio: '4:3' },
-  { id: 'f-drift', title: 'Drift e Tigres', fmt: 'h', ratio: '16:9' },
-  { id: 'f-5sntup', title: 'Escravo Moderno part. 2', fmt: 'h', ratio: '16:9' },
+  { id: 'f-vibe', title: 'Realismo de flash', fmt: 'h', ratio: '4:3' }, // Don't Kill My Vibe
+  { id: 'f-grandmas', title: 'Gangsters da terceira idade', fmt: 'h', ratio: '4:3' }, // Grandmas Are the Real Gangstas
+  { id: 'f-escravo', title: 'Surrealismo político', fmt: 'h', ratio: '4:3' }, // Escravo Moderno
+  { id: 'f-iconoclastia', title: 'Iconoclastia', fmt: 'h', ratio: '16:9' },
+  { id: 'f-deriva', title: 'Império à deriva', fmt: 'h', ratio: '16:9' },
+  { id: 'f-drift', title: 'Noir automotivo', fmt: 'h', ratio: '16:9' }, // Drift e Tigres
+  { id: 'f-5sntup', title: 'Sátira urbana', fmt: 'h', ratio: '16:9' }, // Escravo Moderno part. 2
 ];
 
 export const clips = [
