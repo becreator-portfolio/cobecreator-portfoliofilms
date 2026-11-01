@@ -9,8 +9,8 @@ export const contact = {
 
 export const reel = {
   id: 'reel',
-  title: 'Comic Urban Realism',
-  meta: 'Filme autoral',
+  title: 'Reel',
+  meta: 'Brutos do clipe EUA hate e Iconoclastia · Trilha original do clipe',
 };
 
 // fmt: 'h' horizontal | 'v' vertical

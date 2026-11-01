@@ -573,6 +573,18 @@ function initCursor() {
 }
 
 /* ─────────────────────────────── hero */
+// O reel tem três cortes do mesmo loop: vertical nativo (celular em pé), 720p e 1080p.
+const PORTRAIT = window.matchMedia('(orientation: portrait) and (max-width: 900px)');
+const heroSource = () => {
+  if (PORTRAIT.matches) return { src: '/media/reel/loop-v.mp4', poster: '/media/reel/poster-v.webp' };
+  if (window.innerWidth <= 1280) return { src: '/media/reel/loop-sm.mp4', poster: '/media/reel/poster.webp' };
+  return { src: '/media/reel/loop.mp4', poster: '/media/reel/poster.webp' };
+};
+function setHeroPoster() {
+  const v = $('.hero__video');
+  if (v) v.poster = heroSource().poster;
+}
+
 function initHero() {
   const v = $('.hero__video');
   const tc = $('[data-tc]');
@@ -580,7 +592,7 @@ function initHero() {
   const tick = () => {
     const t = v.currentTime || 0;
     const s = Math.floor(t);
-    tc.textContent = `00:${pad(Math.floor(s / 60))}:${pad(s % 60)}:${pad(Math.floor((t % 1) * 30))}`;
+    tc.textContent = `00:${pad(Math.floor(s / 60))}:${pad(s % 60)}:${pad(Math.floor((t % 1) * 24))}`;
     raf = requestAnimationFrame(tick);
   };
   ScrollTrigger.create({
@@ -593,9 +605,20 @@ function initHero() {
   });
   tick();
   if (RM || SAVE) return;
-  v.src = window.innerWidth > 900 ? '/media/reel/loop.mp4' : '/media/reel/loop-sm.mp4';
+  const pick = heroSource();
+  v.poster = pick.poster;
+  v.src = pick.src;
   v.preload = 'auto';
   v.play().catch(() => {});
+  // girar o celular troca para o corte certo, mantendo o ponto do loop
+  PORTRAIT.addEventListener('change', () => {
+    const next = heroSource();
+    if (v.getAttribute('src') === next.src) return;
+    const t = v.currentTime;
+    v.poster = next.poster;
+    v.src = next.src;
+    v.addEventListener('loadedmetadata', () => { v.currentTime = t; if (heroState.visible && player.el.hidden) v.play().catch(() => {}); }, { once: true });
+  });
   gsap.to('.hero__media', { yPercent: 16, scale: 1.05, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
   gsap.to('.hero__title', { yPercent: -36, opacity: 0.15, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 }
@@ -1049,6 +1072,7 @@ function fitMail(measure) {
 
 /* ─────────────────────────────── boot */
 render();
+setHeroPoster();
 fitStatement();
 document.fonts?.ready.then(() => { fitStatement(); ScrollTrigger.refresh(); });
 let fitT;
