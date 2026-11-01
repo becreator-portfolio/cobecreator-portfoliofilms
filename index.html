@@ -4,27 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>co.becreator — Produção audiovisual</title>
-    <meta name="description" content="co.becreator — filmes, clipes e campanhas. Produção audiovisual do conceito ao corte final." />
+    <meta name="description" content="co.becreator — filmes autorais, clipes e campanhas. Produção audiovisual do conceito ao corte final." />
     <meta name="theme-color" content="#0c0b09" />
+    <link rel="canonical" href="https://cobecreator-portfoliofilms-hg3i.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content="https://cobecreator-portfoliofilms-hg3i.vercel.app/" />
     <meta property="og:title" content="co.becreator — Produção audiovisual" />
     <meta property="og:description" content="Filmes, clipes e campanhas. Do conceito ao corte final." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image" content="https://cobecreator-portfoliofilms-hg3i.vercel.app/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://cobecreator-portfoliofilms-hg3i.vercel.app/og.jpg" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/media/reel/poster.webp" as="image" />
+    <link rel="preload" href="/fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/plex-mono-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/media/reel/poster.webp" as="image" fetchpriority="high" />
   </head>
   <body>
-    <a class="skip" href="#trabalhos">Pular para os trabalhos</a>
+    <a class="skip" href="#filmes">Pular para os trabalhos</a>
 
     <div class="preloader" aria-hidden="true">
       <svg class="preloader__logo" viewBox="40 92 1956 506"><path /></svg>
-      <span class="preloader__count mono">00</span>
+      <span class="preloader__count mono">000</span>
     </div>
 
     <header class="header" data-header>
       <a href="#top" class="header__logo" aria-label="co.becreator — início">
         <svg viewBox="40 92 1956 506" aria-hidden="true"><use href="#logo-path" /></svg>
       </a>
+      <span class="header__chapter mono" aria-hidden="true"><span data-chapter></span></span>
       <nav class="header__nav mono" aria-label="Seções">
         <a href="#filmes">Filmes</a>
         <a href="#clipes">Clipes</a>
@@ -37,14 +47,8 @@
     </header>
 
     <div class="menu" id="menu" hidden>
-      <nav aria-label="Menu">
-        <a href="#filmes"><span class="mono">01</span>Filmes</a>
-        <a href="#clipes"><span class="mono">02</span>Clipes</a>
-        <a href="#campanhas"><span class="mono">03</span>Campanhas</a>
-        <a href="#serie"><span class="mono">04</span>Série</a>
-        <a href="#social"><span class="mono">05</span>Social</a>
-        <a href="#contato"><span class="mono">06</span>Contato</a>
-      </nav>
+      <nav aria-label="Menu" data-menu-nav></nav>
+      <a class="menu__mail mono" data-menu-mail href="#"></a>
     </div>
 
     <main id="top">
@@ -57,33 +61,42 @@
         <div class="hero__top mono">
           <span>Produção audiovisual</span>
           <span class="hero__tc"><i class="rec"></i><span data-tc>00:00:00:00</span></span>
-          <span class="hide-sm">Filmes · Clipes · Campanhas</span>
+          <span class="hide-sm">Reel <span data-reel-dur></span></span>
         </div>
         <h1 class="hero__title">
-          <span class="sr-only">co.becreator</span>
+          <span class="sr-only">co.becreator — produção audiovisual</span>
           <svg class="hero__logo" viewBox="40 92 1956 506" aria-hidden="true"><use href="#logo-path" /></svg>
         </h1>
-        <div class="hero__bottom mono">
-          <button class="btn-play" data-open="reel"><span class="btn-play__icon" aria-hidden="true"></span>Assistir reel <span class="dim">com som</span></button>
-          <span class="dim hide-sm">Role ↓</span>
+        <div class="hero__bottom">
+          <button class="btn-reel" data-open="reel">
+            <span class="btn-reel__ring" aria-hidden="true"><span class="btn-reel__icon"></span></span>
+            <span class="btn-reel__txt">
+              <span class="btn-reel__l">Assistir reel</span>
+              <span class="btn-reel__s mono"><span data-reel-dur></span> · com som</span>
+            </span>
+          </button>
+          <span class="hero__scroll mono hide-sm" aria-hidden="true">Role <span class="hero__arrow">↓</span></span>
         </div>
       </section>
 
-      <!-- STATEMENT -->
+      <!-- APRESENTAÇÃO + ÍNDICE -->
       <section class="statement" aria-label="Apresentação">
         <p class="statement__text" data-lines>
           <span class="w-wide">Do conceito</span>
           <span class="w-cond">ao corte final.</span>
         </p>
-        <p class="statement__aside mono">
-          Produção integral — direção de arte, imagem gerada por IA, montagem, motion e finalização. Filmes autorais, clipes e campanhas.
-        </p>
+        <div class="statement__aside">
+          <p class="statement__lead">Produção integral de filmes autorais, clipes e campanhas.</p>
+          <p class="statement__craft mono">Direção de arte · Imagem gerada por IA · Montagem · Motion · Finalização</p>
+        </div>
+        <nav class="toc" aria-label="Índice de trabalhos">
+          <p class="toc__label mono">Índice</p>
+          <ol data-toc></ol>
+        </nav>
       </section>
 
-      <div id="trabalhos"></div>
-
       <!-- FILMES -->
-      <section class="section" id="filmes" aria-labelledby="t-filmes">
+      <section class="section" id="filmes" aria-labelledby="t-filmes" data-chapter-name="Filmes" data-chapter-n="01">
         <header class="shead">
           <span class="shead__n mono">(01)</span>
           <h2 class="shead__t" id="t-filmes" data-split>Filmes</h2>
@@ -93,22 +106,22 @@
       </section>
 
       <!-- CLIPES -->
-      <section class="section" id="clipes" aria-labelledby="t-clipes">
+      <section class="section" id="clipes" aria-labelledby="t-clipes" data-chapter-name="Clipes" data-chapter-n="02">
         <header class="shead">
           <span class="shead__n mono">(02)</span>
           <h2 class="shead__t" id="t-clipes" data-split>Clipes</h2>
           <span class="shead__m mono" data-count="clips"></span>
         </header>
         <ol class="index" data-clips></ol>
-        <div class="float-preview" aria-hidden="true"><video muted loop playsinline preload="none"></video></div>
+        <div class="float-preview" aria-hidden="true"><video muted loop playsinline preload="none"></video><span class="float-preview__tc mono"></span></div>
       </section>
 
       <!-- CAMPANHAS -->
-      <section class="section section--flush" id="campanhas" aria-labelledby="t-camp">
+      <section class="section section--flush" id="campanhas" aria-labelledby="t-camp" data-chapter-name="Campanhas" data-chapter-n="03">
         <header class="shead">
           <span class="shead__n mono">(03)</span>
           <h2 class="shead__t" id="t-camp" data-split>Campanhas</h2>
-          <span class="shead__m mono">Marcas · Produtos</span>
+          <span class="shead__m mono" data-count="campaigns"></span>
         </header>
         <div data-tz></div>
         <div data-block></div>
@@ -116,7 +129,7 @@
       </section>
 
       <!-- SÉRIE -->
-      <section class="section" id="serie" aria-labelledby="t-serie">
+      <section class="section" id="serie" aria-labelledby="t-serie" data-chapter-name="Série" data-chapter-n="04">
         <header class="shead">
           <span class="shead__n mono">(04)</span>
           <h2 class="shead__t" id="t-serie" data-split>Série</h2>
@@ -126,47 +139,53 @@
       </section>
 
       <!-- SOCIAL -->
-      <section class="section" id="social" aria-labelledby="t-social">
+      <section class="section" id="social" aria-labelledby="t-social" data-chapter-name="Social" data-chapter-n="05">
         <header class="shead">
           <span class="shead__n mono">(05)</span>
           <h2 class="shead__t" id="t-social" data-split>Social</h2>
-          <span class="shead__m mono">Reels · Vertical</span>
+          <span class="shead__m mono" data-count="social"></span>
         </header>
         <div data-social></div>
       </section>
 
       <!-- CONTATO -->
-      <section class="contact" id="contato" aria-labelledby="t-contato">
-        <h2 class="contact__label mono" id="t-contato">(06) Contato</h2>
+      <section class="contact" id="contato" aria-labelledby="t-contato" data-chapter-name="Contato" data-chapter-n="06">
+        <div class="contact__head">
+          <h2 class="contact__label mono" id="t-contato">(06) Contato</h2>
+          <p class="contact__lead">Filme, clipe ou campanha — escreva.</p>
+        </div>
         <a class="contact__mail" data-mail href="#"></a>
         <div class="contact__row mono">
-          <button class="contact__copy" data-copy>Copiar e-mail</button>
-          <a data-insta target="_blank" rel="noopener"></a>
+          <button class="contact__btn" data-copy>Copiar e-mail</button>
+          <a class="contact__btn" data-insta target="_blank" rel="noopener"></a>
+          <span class="sr-only" aria-live="polite" data-copy-status></span>
         </div>
       </section>
     </main>
 
     <footer class="footer mono">
       <span>© <span data-year></span> co.becreator</span>
-      <a href="#top">Topo ↑</a>
+      <a href="#top" class="footer__top">Topo ↑</a>
     </footer>
 
     <!-- PLAYER -->
     <div class="player" role="dialog" aria-modal="true" aria-labelledby="player-title" hidden>
       <div class="player__bar mono">
-        <div>
+        <div class="player__info">
           <p class="player__title" id="player-title"></p>
           <p class="player__meta dim"></p>
         </div>
         <div class="player__nav">
-          <button class="player__prev" aria-label="Anterior">←</button>
+          <a class="player__yt" target="_blank" rel="noopener" hidden>Abrir no YouTube ↗</a>
+          <button class="player__prev" aria-label="Trabalho anterior">← <span class="hide-md">Anterior</span></button>
           <span class="player__pos dim"></span>
-          <button class="player__next" aria-label="Próximo">→</button>
-          <button class="player__close" aria-label="Fechar">Fechar ✕</button>
+          <button class="player__next" aria-label="Próximo trabalho"><span class="player__next-l hide-md"></span> →</button>
+          <button class="player__close" aria-label="Fechar player">Fechar ✕</button>
         </div>
       </div>
       <div class="player__stage">
         <video class="player__video" playsinline preload="auto"></video>
+        <span class="player__status mono" aria-live="polite"></span>
         <div class="player__embed"></div>
       </div>
       <div class="player__controls mono">

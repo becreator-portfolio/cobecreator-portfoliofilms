@@ -34,9 +34,16 @@ Gera `dist/` (estático). Na Vercel: importar o repositório do GitHub, framewor
 - full: H.264, até 1920×1080 (horizontal) / 1080×1920 (vertical), CRF 25, máx. 3,8 Mbps, AAC 128k, faststart.
 - preview: 5 s sem áudio, 720 px (horizontal) / 480 px (vertical), CRF 28.
 
+## Fontes
+
+`public/fonts/` — Archivo (variável: peso 100–900, largura 62–125%) e IBM Plex Mono 400/500, só o subconjunto latino, com preload. Licenças OFL na mesma pasta.
+
 ## Decisões
 
 - Vídeos só carregam quando necessários: previews no hover (desktop) ou quando o quadro está visível (touch); o player só carrega a versão completa ao abrir.
 - `prefers-reduced-motion`: sem smooth scroll, sem parallax, sem flash, sem autoplay.
 - `Save-Data`: sem previews automáticos.
-- Série (O Peso da História) abre a playlist do YouTube via `youtube-nocookie`, só ao clicar.
+- Série (O Peso da História) abre a playlist do YouTube via `youtube-nocookie`, só ao clicar; há também link direto para o YouTube.
+- No máximo 4 vídeos de preview tocam ao mesmo tempo.
+- Player: ← → navegam entre trabalhos, M silencia, F tela cheia, Esc fecha; a interface some após 2,6 s sem movimento (desktop).
+- Áreas de toque ≥ 44 px; foco visível; foco preso no player e no menu.

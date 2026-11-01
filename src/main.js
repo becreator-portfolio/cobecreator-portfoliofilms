@@ -12,7 +12,7 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 const SAVE = navigator.connection?.saveData === true;
-const DESKTOP = () => window.matchMedia('(min-width: 861px)').matches;
+const MAX_AUTOPLAY = 4;
 
 const src = (id, f) => `/media/${id}/${f}`;
 const fmtTime = (s) => {
@@ -21,38 +21,65 @@ const fmtTime = (s) => {
   return `${String(m).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 };
 const dur = (id) => fmtTime(media[id]?.dur ?? 0);
-const ratioOf = (id) => {
-  const m = media[id];
-  return m ? `${m.w} / ${m.h}` : '16 / 9';
-};
+const ratioOf = (id) => (media[id] ? `${media[id].w} / ${media[id].h}` : '16 / 9');
+const ratioNum = (id) => (media[id] ? (media[id].w / media[id].h).toFixed(3) : '1.778');
 const pad = (n) => String(n).padStart(2, '0');
+const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /* ─────────────────────────────── playlists (for player prev/next) */
 const playlists = {};
 const reg = (key, items) => { playlists[key] = items; };
 
 /* ─────────────────────────────── templates */
-function frame(item, { list, idx, label = 'Play', ratio, lazyPoster = true } = {}) {
+function frame(item, { list, idx, label = 'Play', ratio } = {}) {
   const r = ratio ?? ratioOf(item.id);
   return `
   <div class="frame" role="button" tabindex="0" style="aspect-ratio:${r}"
        data-id="${item.id}" data-list="${list}" data-idx="${idx}" data-cursor="${label}"
-       aria-label="Assistir ${item.title.replace(/"/g, '&quot;')}">
+       aria-label="Assistir ${esc(item.title)} — ${dur(item.id)}">
     <div class="frame__inner">
-      <img src="${src(item.id, 'poster.webp')}" alt="" ${lazyPoster ? 'loading="lazy" decoding="async"' : ''} />
+      <img src="${src(item.id, 'poster.webp')}" alt="" loading="lazy" decoding="async" />
       <video muted loop playsinline preload="none" data-src="${src(item.id, 'preview.mp4')}"></video>
     </div>
-    <span class="frame__tc mono"><i class="rec"></i>${dur(item.id)}</span>
+    <span class="frame__tc mono" aria-hidden="true"><i class="rec"></i>${dur(item.id)}</span>
   </div>`;
 }
-
-function card(item, opts, capHtml) {
-  return `<figure class="card" data-reveal>${frame(item, opts)}<figcaption class="cap mono">${capHtml}</figcaption></figure>`;
-}
+const cap = ({ n, t, m }) =>
+  `<figcaption class="cap">${n ? `<span class="cap__n">${n}</span>` : ''}<span class="cap__t">${t}</span><span class="cap__m">${m}</span></figcaption>`;
+const card = (item, opts, c, extra = '') => `<figure class="card" data-reveal ${extra}>${frame(item, opts)}${cap(c)}</figure>`;
 
 /* ─────────────────────────────── render */
+const counts = {
+  films: films.length,
+  clips: clips.length,
+  campaigns: 1 + campaigns.block.items.length + campaigns.lv.items.length,
+  series: series.episodes,
+  social: social.reduce((a, g) => a + g.items.length, 0),
+};
+const chapters = [
+  ['filmes', 'Filmes', counts.films],
+  ['clipes', 'Clipes', counts.clips],
+  ['campanhas', 'Campanhas', counts.campaigns],
+  ['serie', 'Série', counts.series],
+  ['social', 'Social', counts.social],
+];
+
 function render() {
-  // logo path for preloader is inlined by vite; contact
+  // reel duration
+  $$('[data-reel-dur]').forEach((el) => (el.textContent = dur('reel')));
+
+  // índice (statement) + mobile menu
+  $('[data-toc]').innerHTML = chapters
+    .map(([id, name, n], i) => `<li><a href="#${id}"><span class="toc__n">(${pad(i + 1)})</span><span class="toc__t">${name}</span><span class="toc__c">${pad(n)}</span></a></li>`)
+    .join('');
+  $('[data-menu-nav]').innerHTML = [...chapters, ['contato', 'Contato', null]]
+    .map(([id, name, n], i) => `<a href="#${id}"><span class="mono">${pad(i + 1)}</span>${name}<span class="mono">${n ? pad(n) : ''}</span></a>`)
+    .join('');
+  const mm = $('[data-menu-mail]');
+  mm.href = `mailto:${contact.email}`;
+  mm.textContent = contact.email;
+
+  // contact
   const mail = $('[data-mail]');
   mail.href = `mailto:${contact.email}`;
   const at = contact.email.indexOf('@');
@@ -62,46 +89,46 @@ function render() {
   mail.dataset.cursor = 'Escrever';
   const ig = $('[data-insta]');
   ig.href = contact.instagram;
-  ig.textContent = `Instagram ${contact.instagramHandle}`;
+  ig.textContent = `Instagram ${contact.instagramHandle} ↗`;
   $('[data-year]').textContent = new Date().getFullYear();
 
   // films
   reg('films', films.map((f) => ({ ...f, kind: 'Filme autoral' })));
   $('[data-films]').innerHTML = films
-    .map((f, i) =>
-      card(f, { list: 'films', idx: i }, `<span><span class="cap__n">${pad(i + 1)}</span><span class="cap__t">${f.title}</span></span><span class="dim">${f.ratio} · ${dur(f.id)}</span>`)
-    )
+    .map((f, i) => card(f, { list: 'films', idx: i }, { n: pad(i + 1), t: f.title, m: `${f.ratio} · ${dur(f.id)}` }, `style="--arn:${ratioNum(f.id)}"`))
     .join('');
-  $('[data-count="films"]').textContent = `${pad(films.length)} filmes autorais`;
+  $('[data-count="films"]').textContent = `${pad(counts.films)} filmes autorais`;
 
   // clips index
-  reg('clips', clips);
+  reg('clips', clips.map((c) => ({ ...c, kind: 'Clipe' })));
   $('[data-clips]').innerHTML = clips
     .map(
       (c, i) => `
     <li class="index__row" data-reveal>
       <button class="index__btn" data-open-list="clips" data-idx="${i}" data-preview="${c.id}" data-cursor="Play"
-        aria-label="Assistir ${c.title} — ${c.artist}">
+        aria-label="Assistir ${esc(c.title)} — ${esc(c.artist)}, ${dur(c.id)}">
         <span class="index__n">${pad(i + 1)}</span>
         <span class="index__t">${c.title}</span>
         <span class="index__a">${c.artist}${c.credit ? ` — ${c.credit}` : ''}</span>
         <span class="index__d">${dur(c.id)}</span>
-        <img class="index__thumb" src="${src(c.id, 'poster.webp')}" alt="" loading="lazy" />
+        <img class="index__thumb" src="${src(c.id, 'poster.webp')}" alt="" loading="lazy" decoding="async" />
       </button>
     </li>`
     )
     .join('');
-  $('[data-count="clips"]').textContent = `${pad(clips.length)} clipes · Unânime e outros`;
+  $('[data-count="clips"]').textContent = `${pad(counts.clips)} clipes`;
+  $('[data-count="campaigns"]').textContent = `${pad(counts.campaigns)} peças`;
+  $('[data-count="social"]').textContent = `${pad(counts.social)} reels`;
 
   // TZ
   const tz = campaigns.tz;
-  reg('tz', [{ ...tz, kind: tz.kind }]);
+  reg('tz', [{ ...tz }]);
   $('[data-tz]').innerHTML = `
     <div class="tz" data-tz-wrap>
       ${frame(tz, { list: 'tz', idx: 0, ratio: 'auto' })}
       <div class="tz__info">
         <h3 class="tz__t">${tz.title}</h3>
-        <span class="mono">${tz.kind} · ${dur(tz.id)}</span>
+        <span class="tz__m mono">${tz.kind} · ${dur(tz.id)}</span>
       </div>
     </div>`;
 
@@ -110,23 +137,24 @@ function render() {
   reg('block', b.items.map((it) => ({ ...it, title: `Block Office — ${it.title}`, kind: b.kind })));
   $('[data-block]').innerHTML = `
     <div class="block" data-block-wrap>
-      <div class="block__pin">
+      <div class="block__pin" tabindex="-1">
         <div class="block__track">
           <div class="block__intro">
             <span class="mono dim">${b.kind}</span>
             <h3 class="block__t">${b.title}</h3>
-            <span class="mono dim">${pad(b.items.length)} peças · Vertical e horizontal</span>
+            <span class="block__hint mono">${pad(b.items.length)} peças · <span class="hint-touch">deslize →</span><span class="hint-scroll">role para ver →</span></span>
           </div>
           ${b.items
             .map(
               (it, i) => `
             <figure class="block__item block__item--${it.fmt}">
               ${frame(it, { list: 'block', idx: i, ratio: it.fmt === 'v' ? '9 / 16' : '16 / 9' })}
-              <figcaption class="cap mono"><span><span class="cap__n">${pad(i + 1)}</span>${it.title}</span><span class="dim">${dur(it.id)}</span></figcaption>
+              ${cap({ n: pad(i + 1), t: it.title, m: dur(it.id) })}
             </figure>`
             )
             .join('')}
         </div>
+        <div class="block__progress mono" aria-hidden="true"><span class="block__count">01 / ${pad(b.items.length)}</span><span class="block__bar"></span></div>
       </div>
     </div>`;
 
@@ -139,92 +167,100 @@ function render() {
         <span class="mono dim">${lv.kind}</span>
         <h3 class="lv__t">${lv.title}</h3>
       </div>
-      ${lv.items
-        .map((it, i) => card(it, { list: 'lv', idx: i, ratio: '16 / 9' }, `<span><span class="cap__n">${pad(i + 1)}</span>${it.title}</span><span class="dim">${dur(it.id)}</span>`))
-        .join('')}
+      ${lv.items.map((it, i) => card(it, { list: 'lv', idx: i, ratio: '16 / 9' }, { n: pad(i + 1), t: it.title, m: dur(it.id) })).join('')}
     </div>`;
 
   // Série
+  const ytList = `https://www.youtube.com/playlist?list=${series.playlist}`;
   $('[data-series]').innerHTML = `
     <div class="series">
       <div class="series__info">
         <span class="mono dim">${series.channel}</span>
         <h3 class="series__t">${series.title}</h3>
-        <div class="series__eps mono" aria-label="${series.episodes} episódios">${Array.from({ length: series.episodes }, (_, i) => `<span>${i + 1}</span>`).join('')}</div>
-        <button class="btn-line mono" data-yt><span class="btn-play__icon" aria-hidden="true"></span>Assistir a série</button>
+        <p class="series__meta mono">${pad(series.episodes)} episódios</p>
+        <div class="series__actions">
+          <button class="btn-line mono" data-yt><span class="btn-reel__icon" aria-hidden="true"></span>Assistir a série</button>
+          <a class="link-ext mono" href="${ytList}" target="_blank" rel="noopener">YouTube ↗</a>
+        </div>
       </div>
       <div class="series__stage">
-        <div class="frame" role="button" tabindex="0" data-yt data-cursor="Assistir no YouTube" aria-label="Assistir ${series.title} no YouTube" style="aspect-ratio:16/9">
+        <div class="frame" role="button" tabindex="0" data-yt data-cursor="Assistir a série" aria-label="Assistir ${series.title} — playlist" style="aspect-ratio:16/9">
           <div class="frame__inner">
             <img src="${src('serie', 'poster.webp')}" alt="" loading="lazy" decoding="async" />
             <video muted loop playsinline preload="none" data-src="${src('serie', 'preview.mp4')}"></video>
           </div>
         </div>
-        <div class="series__stills">
-          ${series.stills
-            .map(
-              (s) => `<div class="frame" role="button" tabindex="0" data-yt data-cursor="YouTube" aria-label="Abrir playlist no YouTube"><div class="frame__inner"><img src="${src('serie', s + '.webp')}" alt="" loading="lazy" /></div></div>`
-            )
-            .join('')}
+        <div class="series__stills" aria-hidden="true">
+          ${series.stills.map((s) => `<div class="frame" data-yt data-cursor="Assistir a série"><div class="frame__inner"><img src="${src('serie', s + '.webp')}" alt="" loading="lazy" decoding="async" /></div></div>`).join('')}
         </div>
       </div>
     </div>`;
 
-  // Social
+  // Social — contact sheet
   const flat = [];
-  $('[data-social]').innerHTML = `<div class="social">${social
-    .map((g) => {
-      const cards = g.items
-        .map((it) => {
-          const idx = flat.push({ ...it, title: `${g.client} — ${it.title}`, kind: g.note }) - 1;
-          return card(it, { list: 'social', idx, ratio: '9 / 16' }, `<span>${it.title}</span><span class="dim">${dur(it.id)}</span>`);
-        })
-        .join('');
-      return `
-      <div class="sgroup">
+  const groups = social.map((g) => {
+    const cards = g.items
+      .map((it) => {
+        const idx = flat.push({ ...it, title: `${g.client} — ${it.title}`, kind: g.note }) - 1;
+        return card(it, { list: 'social', idx, ratio: '9 / 16' }, { t: it.title, m: dur(it.id) });
+      })
+      .join('');
+    return `
+      <div class="sgroup" style="--n:${g.items.length}">
         <div class="sgroup__head" data-reveal>
           <h3 class="sgroup__t">${g.client}</h3>
-          <span class="mono dim">${g.note}</span>
+          <span class="sgroup__note mono">${g.note}</span>
         </div>
-        <div class="sgroup__row" data-autoplay-row>${cards}</div>
+        <div class="sgroup__row">${cards}</div>
       </div>`;
-    })
-    .join('')}</div>`;
+  });
+  // the third group closes the first row of the 6-col sheet; a usage hint fills the remaining column
+  groups.splice(3, 0, `<p class="social__note mono" aria-hidden="true">${FINE ? 'Passe o cursor para ver · clique para assistir com som' : 'Toque para assistir com som'}</p>`);
+  $('[data-social]').innerHTML = `<div class="social">${groups.join('')}</div>`;
   reg('social', flat);
   reg('reel', [reel]);
 }
 
 /* ─────────────────────────────── previews */
 const playing = new Set();
-function startPreview(fr) {
+const autoQueue = [];
+function startPreview(fr, auto = false) {
   if (!fr || SAVE) return;
   const v = $('video', fr);
   if (!v) return;
   if (!v.src) v.src = v.dataset.src;
   const p = v.play();
-  if (p) p.then(() => fr.classList.add('is-playing')).catch(() => {});
+  if (p) p.then(() => { if (autoQueue.includes(fr)) fr.classList.add('is-playing'); else v.pause(); }).catch(() => {});
   playing.add(fr);
+  const i = autoQueue.indexOf(fr);
+  if (i > -1) autoQueue.splice(i, 1);
+  autoQueue.push(fr);
+  while (autoQueue.length > MAX_AUTOPLAY) stopPreview(autoQueue[0]);
 }
 function stopPreview(fr) {
+  if (!fr) return;
   const v = $('video', fr);
   if (!v) return;
   v.pause();
   fr.classList.remove('is-playing');
   playing.delete(fr);
+  const i = autoQueue.indexOf(fr);
+  if (i > -1) autoQueue.splice(i, 1);
 }
 
 function initPreviews() {
   const frames = $$('.frame').filter((f) => $('video', f));
-  if (FINE) {
-    frames.forEach((fr) => {
+  frames.forEach((fr) => {
+    if (FINE) {
       fr.addEventListener('mouseenter', () => startPreview(fr));
-      fr.addEventListener('mouseleave', () => {
-        if (!fr.dataset.inview) stopPreview(fr);
-      });
-    });
-  }
+      fr.addEventListener('mouseleave', () => { if (!fr.dataset.inview) stopPreview(fr); });
+    }
+    // keyboard users get the same preview as hover
+    fr.addEventListener('focus', () => startPreview(fr));
+    fr.addEventListener('blur', () => { if (!fr.dataset.inview) stopPreview(fr); });
+  });
   if (RM) return;
-  // autoplay when the frame is well inside the viewport: TZ, Block Office, social, série; on touch: all
+  // autoplay while well inside the viewport: TZ, Block Office, social, série; on touch screens: everything
   const auto = frames.filter((f) => !FINE || f.closest('.tz, .block, .sgroup__row, .series__stage'));
   const io = new IntersectionObserver(
     (entries) => {
@@ -232,7 +268,7 @@ function initPreviews() {
         const fr = e.target;
         if (e.isIntersecting && e.intersectionRatio >= 0.6) {
           fr.dataset.inview = '1';
-          startPreview(fr);
+          startPreview(fr, true);
         } else {
           delete fr.dataset.inview;
           stopPreview(fr);
@@ -244,36 +280,36 @@ function initPreviews() {
   auto.forEach((f) => io.observe(f));
 }
 
-/* floating preview for the clips index */
+/* floating preview for the clips index: anchored right, follows the pointer vertically */
 function initFloatPreview() {
   if (!FINE) return;
   const box = $('.float-preview');
   const v = $('video', box);
+  const tc = $('.float-preview__tc', box);
   const list = $('[data-clips]');
-  let x = 0, y = 0, cx = 0, cy = 0, current = null, raf = null;
+  let x = 0, y = 0, cy = 0, current = null, raf = null;
+  const margin = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m')) || 32;
   const loop = () => {
-    cx += (x - cx) * 0.14;
     cy += (y - cy) * 0.14;
-    box.style.left = `${cx}px`;
+    box.style.left = `${x}px`;
     box.style.top = `${cy}px`;
     raf = requestAnimationFrame(loop);
   };
   list.addEventListener('mousemove', (e) => {
-    // anchored to the right edge (titles expand on hover and must stay readable); follows the pointer vertically
-    const margin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m')) || 32;
-    x = window.innerWidth - margin - box.offsetWidth / 2;
+    x = window.innerWidth - margin() - box.offsetWidth / 2;
     y = Math.min(Math.max(e.clientY, box.offsetHeight / 2 + 12), window.innerHeight - box.offsetHeight / 2 - 12);
   });
   $$('.index__btn', list).forEach((btn) => {
     btn.addEventListener('mouseenter', (e) => {
       const id = btn.dataset.preview;
-      if (!raf) { cx = e.clientX; cy = e.clientY; loop(); }
+      if (!raf) { cy = e.clientY; x = window.innerWidth - margin() - box.offsetWidth / 2; loop(); }
       box.classList.add('is-on');
       if (current !== id) {
         current = id;
         v.poster = src(id, 'poster.webp');
-        if (!SAVE) { v.src = src(id, 'preview.mp4'); v.play().catch(() => {}); }
         box.style.aspectRatio = ratioOf(id);
+        tc.textContent = dur(id);
+        if (!SAVE) { v.src = src(id, 'preview.mp4'); v.play().catch(() => {}); }
       }
     });
   });
@@ -287,16 +323,14 @@ function initFloatPreview() {
 
 /* ─────────────────────────────── flash pulse */
 function flash(strength = 0.75) {
-  if (RM) return Promise.resolve();
-  return gsap
-    .timeline()
-    .set('.flash', { opacity: strength })
-    .to('.flash', { opacity: 0, duration: 0.42, ease: 'power2.out' });
+  if (RM) return;
+  gsap.timeline().set('.flash', { opacity: strength }).to('.flash', { opacity: 0, duration: 0.42, ease: 'power2.out' });
 }
 
 /* ─────────────────────────────── player */
+const heroState = { visible: true };
 const player = {
-  el: null, v: null, list: null, idx: 0, lastFocus: null, lenis: null,
+  el: null, v: null, list: null, idx: 0, lastFocus: null, lenis: null, idleT: null,
   init(lenis) {
     this.lenis = lenis;
     this.el = $('.player');
@@ -305,44 +339,67 @@ const player = {
     const seek = $('.pc-seek');
     const play = $('.pc-play');
     const mute = $('.pc-mute');
+    const status = $('.player__status');
     const setP = () => {
       const p = v.duration ? (v.currentTime / v.duration) * 1000 : 0;
       seek.value = p;
       seek.style.setProperty('--p', `${p / 10}%`);
       $('.pc-time').textContent = fmtTime(v.currentTime);
     };
+    const setStatus = (t) => { status.textContent = t; status.classList.toggle('is-on', !!t); };
     v.addEventListener('timeupdate', setP);
     v.addEventListener('loadedmetadata', () => { $('.pc-dur').textContent = fmtTime(v.duration); setP(); });
-    v.addEventListener('play', () => { play.textContent = 'Pausar'; play.setAttribute('aria-label', 'Pausar'); });
-    v.addEventListener('pause', () => { play.textContent = 'Play'; play.setAttribute('aria-label', 'Reproduzir'); });
+    v.addEventListener('waiting', () => setStatus('Carregando…'));
+    v.addEventListener('playing', () => setStatus(''));
+    v.addEventListener('canplay', () => setStatus(''));
+    v.addEventListener('play', () => { play.textContent = 'Pausar'; play.setAttribute('aria-label', 'Pausar'); this.armIdle(); });
+    v.addEventListener('pause', () => { play.textContent = 'Play'; play.setAttribute('aria-label', 'Reproduzir'); this.wake(); });
     v.addEventListener('ended', () => this.step(1, true));
     v.addEventListener('click', () => (v.paused ? v.play() : v.pause()));
+    v.addEventListener('dblclick', () => this.fullscreen());
     seek.addEventListener('input', () => { if (v.duration) v.currentTime = (seek.value / 1000) * v.duration; });
     play.addEventListener('click', () => (v.paused ? v.play() : v.pause()));
-    mute.addEventListener('click', () => {
-      v.muted = !v.muted;
-      mute.textContent = v.muted ? 'Som off' : 'Som on';
-      mute.setAttribute('aria-label', v.muted ? 'Ativar som' : 'Silenciar');
-    });
-    $('.pc-fs').addEventListener('click', () => {
-      const t = $('.player__stage');
-      if (document.fullscreenElement) document.exitFullscreen();
-      else (t.requestFullscreen?.() ?? v.webkitEnterFullscreen?.());
-    });
+    mute.addEventListener('click', () => this.toggleMute());
+    $('.pc-fs').addEventListener('click', () => this.fullscreen());
     $('.player__close').addEventListener('click', () => this.close());
     $('.player__prev').addEventListener('click', () => this.step(-1));
     $('.player__next').addEventListener('click', () => this.step(1));
+    ['mousemove', 'touchstart'].forEach((ev) => this.el.addEventListener(ev, () => this.armIdle(), { passive: true }));
     document.addEventListener('keydown', (e) => {
       if (this.el.hidden) return;
+      this.armIdle();
+      const typing = e.target.tagName === 'INPUT';
       if (e.key === 'Escape') this.close();
-      else if (e.key === 'ArrowRight' && e.target.tagName !== 'INPUT') this.step(1);
-      else if (e.key === 'ArrowLeft' && e.target.tagName !== 'INPUT') this.step(-1);
-      else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+      else if (e.key === 'ArrowRight' && !typing) this.step(1);
+      else if (e.key === 'ArrowLeft' && !typing) this.step(-1);
+      else if ((e.key === ' ' || e.key === 'k') && (e.target === document.body || e.target === v)) { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+      else if (e.key === 'm' && !typing) this.toggleMute();
+      else if (e.key === 'f' && !typing) this.fullscreen();
       else if (e.key === 'Tab') this.trap(e);
     });
   },
+  toggleMute() {
+    const v = this.v, mute = $('.pc-mute');
+    v.muted = !v.muted;
+    mute.textContent = v.muted ? 'Som off' : 'Som on';
+    mute.setAttribute('aria-label', v.muted ? 'Ativar som' : 'Silenciar');
+  },
+  fullscreen() {
+    const t = $('.player__stage');
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (t.requestFullscreen) t.requestFullscreen();
+    else this.v.webkitEnterFullscreen?.();
+  },
+  wake() { clearTimeout(this.idleT); this.el.classList.remove('is-idle'); },
+  armIdle() {
+    this.wake();
+    if (this.el.classList.contains('is-embed') || this.v.paused || !FINE) return;
+    this.idleT = setTimeout(() => {
+      if (!this.el.contains(document.activeElement) || document.activeElement === document.body || document.activeElement === this.v || document.activeElement === $('.player__close')) this.el.classList.add('is-idle');
+    }, 2600);
+  },
   trap(e) {
-    const f = $$('button, input, iframe, [tabindex="0"]', this.el).filter((n) => n.offsetParent !== null && !n.disabled);
+    const f = $$('a[href]:not([hidden]), button:not([hidden]), input, iframe', this.el).filter((n) => n.offsetParent !== null && !n.disabled);
     if (!f.length) return;
     const first = f[0], last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -351,40 +408,48 @@ const player = {
   load() {
     const item = this.list[this.idx];
     const many = this.list.length > 1;
+    const next = many ? this.list[this.idx + 1] : null;
     $('.player__title').textContent = item.title;
     $('.player__meta').textContent = item.meta ?? [item.kind, item.artist, item.credit, item.ratio].filter(Boolean).join(' · ');
     $('.player__pos').textContent = many ? `${pad(this.idx + 1)} / ${pad(this.list.length)}` : '';
     $('.player__prev').hidden = $('.player__next').hidden = !many;
     $('.player__prev').disabled = this.idx === 0;
-    $('.player__next').disabled = this.idx === this.list.length - 1;
+    $('.player__next').disabled = !next;
+    $('.player__next-l').textContent = next ? `Próximo: ${next.title.replace(/^.+? — /, '')}` : 'Próximo';
+    $('.player__next').setAttribute('aria-label', next ? `Próximo trabalho: ${next.title}` : 'Próximo trabalho');
+    $('.player__yt').hidden = true;
     this.v.poster = src(item.id, 'poster.webp');
     this.v.src = src(item.id, 'full.mp4');
     this.v.muted = false;
     $('.pc-mute').textContent = 'Som on';
     this.v.play().catch(() => { this.v.muted = true; $('.pc-mute').textContent = 'Som off'; this.v.play().catch(() => {}); });
   },
-  async open(listKey, idx = 0) {
-    this.list = playlists[listKey];
-    this.idx = idx;
+  prepare() {
     this.lastFocus = document.activeElement;
-    this.el.classList.remove('is-embed');
-    $('.player__embed').innerHTML = '';
     playing.forEach(stopPreview);
     $('.hero__video')?.pause();
+  },
+  open(listKey, idx = 0) {
+    this.prepare();
+    this.list = playlists[listKey];
+    this.idx = idx;
+    this.el.classList.remove('is-embed');
+    $('.player__embed').innerHTML = '';
     this.show();
     this.load();
   },
   openEmbed() {
-    this.lastFocus = document.activeElement;
+    this.prepare();
     this.list = [{ title: series.title }];
     this.el.classList.add('is-embed');
     $('.player__title').textContent = `${series.title} — ${series.channel}`;
     $('.player__meta').textContent = `Playlist · ${series.episodes} episódios · YouTube`;
     $('.player__pos').textContent = '';
     $('.player__prev').hidden = $('.player__next').hidden = true;
-    $('.player__embed').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${series.firstVideo}?list=${series.playlist}&autoplay=1&rel=0" title="${series.title} — playlist no YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
-    playing.forEach(stopPreview);
-    $('.hero__video')?.pause();
+    const yt = $('.player__yt');
+    yt.href = `https://www.youtube.com/playlist?list=${series.playlist}`;
+    yt.hidden = false;
+    $('.player__embed').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${series.firstVideo}?list=${series.playlist}&autoplay=1&rel=0&modestbranding=1" title="${series.title} — playlist no YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
     this.show();
   },
   show() {
@@ -392,8 +457,10 @@ const player = {
     this.lenis?.stop();
     document.documentElement.style.overflow = 'hidden';
     flash(0.6);
-    if (!RM) gsap.fromTo('.player__stage', { clipPath: 'inset(18% 12% 18% 12%)', opacity: 0.4 }, { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.9, ease: 'expo.out' });
-    if (!RM) gsap.fromTo(['.player__bar', '.player__controls'], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.2, ease: 'power3.out' });
+    if (!RM) {
+      gsap.fromTo('.player__stage', { clipPath: 'inset(18% 12% 18% 12%)', opacity: 0.4 }, { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration: 0.9, ease: 'expo.out' });
+      gsap.fromTo(['.player__bar', '.player__controls'], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.2, ease: 'power3.out', clearProps: 'opacity,transform' });
+    }
     $('.player__close').focus({ preventScroll: true });
   },
   step(d, auto = false) {
@@ -401,30 +468,31 @@ const player = {
     const n = this.idx + d;
     if (n < 0 || n >= this.list.length) return;
     this.idx = n;
-    if (!auto || !RM) flash(0.5);
+    if (!auto) flash(0.5);
     this.load();
   },
   close() {
+    this.wake();
     this.v.pause();
     this.v.removeAttribute('src');
     this.v.load();
     $('.player__embed').innerHTML = '';
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     const done = () => {
       this.el.hidden = true;
       document.documentElement.style.overflow = '';
       this.lenis?.start();
-      $('.hero__video')?.play().catch(() => {});
+      if (heroState.visible && !RM && !SAVE) $('.hero__video')?.play().catch(() => {});
       this.lastFocus?.focus?.({ preventScroll: true });
     };
     if (RM) return done();
-    gsap.to('.player', { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: () => { gsap.set('.player', { opacity: 1 }); done(); } });
+    gsap.to('.player', { opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: () => { gsap.set('.player', { clearProps: 'opacity' }); done(); } });
   },
 };
 
 function initOpeners() {
   document.addEventListener('click', (e) => {
-    const yt = e.target.closest('[data-yt]');
-    if (yt) return player.openEmbed();
+    if (e.target.closest('[data-yt]')) return player.openEmbed();
     const o = e.target.closest('[data-open]');
     if (o) return player.open(o.dataset.open, 0);
     const l = e.target.closest('[data-open-list]');
@@ -455,7 +523,7 @@ function initCursor() {
   });
   document.addEventListener('mouseover', (e) => {
     const t = e.target.closest('[data-cursor]');
-    if (t) { label.textContent = t.dataset.cursor; c.classList.add('is-on'); }
+    if (t && player.el.hidden) { label.textContent = t.dataset.cursor; c.classList.add('is-on'); }
     else c.classList.remove('is-on');
   });
   document.addEventListener('mouseleave', () => c.classList.remove('is-on'));
@@ -465,21 +533,28 @@ function initCursor() {
 function initHero() {
   const v = $('.hero__video');
   const tc = $('[data-tc]');
+  let raf;
   const tick = () => {
     const t = v.currentTime || 0;
-    const f = Math.floor((t % 1) * 30);
     const s = Math.floor(t);
-    tc.textContent = `00:${pad(Math.floor(s / 60))}:${pad(s % 60)}:${pad(f)}`;
-    requestAnimationFrame(tick);
+    tc.textContent = `00:${pad(Math.floor(s / 60))}:${pad(s % 60)}:${pad(Math.floor((t % 1) * 30))}`;
+    raf = requestAnimationFrame(tick);
   };
+  ScrollTrigger.create({
+    trigger: '.hero', start: 'top bottom', end: 'bottom top',
+    onToggle: (s) => {
+      heroState.visible = s.isActive;
+      if (s.isActive) { if (!raf) tick(); if (v.src && player.el.hidden) v.play().catch(() => {}); }
+      else { cancelAnimationFrame(raf); raf = null; v.pause(); }
+    },
+  });
   tick();
   if (RM || SAVE) return;
   v.src = window.innerWidth > 900 ? '/media/reel/loop.mp4' : '/media/reel/loop-sm.mp4';
   v.preload = 'auto';
   v.play().catch(() => {});
-  gsap.to('.hero__media', { yPercent: 18, scale: 1.06, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-  gsap.to('.hero__title', { yPercent: -40, opacity: 0.2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-  ScrollTrigger.create({ trigger: '.hero', start: 'bottom top', onEnter: () => v.pause(), onLeaveBack: () => v.play().catch(() => {}) });
+  gsap.to('.hero__media', { yPercent: 16, scale: 1.05, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+  gsap.to('.hero__title', { yPercent: -36, opacity: 0.15, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
 }
 
 /* ─────────────────────────────── text + reveals */
@@ -493,10 +568,7 @@ function initReveals() {
   if (RM) return;
   $$('[data-split]').forEach((el) => {
     const chars = splitChars(el);
-    gsap.from(chars, {
-      yPercent: 105, duration: 1.1, ease: 'expo.out', stagger: 0.035,
-      scrollTrigger: { trigger: el, start: 'top 88%' },
-    });
+    gsap.from(chars, { yPercent: 105, duration: 1.1, ease: 'expo.out', stagger: 0.035, scrollTrigger: { trigger: el, start: 'top 90%' } });
   });
   $$('[data-lines] > span').forEach((line) => {
     const wrap = document.createElement('span');
@@ -504,18 +576,15 @@ function initReveals() {
     line.parentNode.insertBefore(wrap, line);
     wrap.appendChild(line);
   });
-  gsap.from('[data-lines] .line-mask > span', {
-    yPercent: 110, duration: 1.3, ease: 'expo.out', stagger: 0.12,
-    scrollTrigger: { trigger: '[data-lines]', start: 'top 80%' },
-  });
-  gsap.from('.statement__aside', { opacity: 0, y: 16, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.statement__aside', start: 'top 90%' } });
+  gsap.from('[data-lines] .line-mask > span', { yPercent: 110, duration: 1.3, ease: 'expo.out', stagger: 0.12, scrollTrigger: { trigger: '[data-lines]', start: 'top 82%' } });
+  gsap.from(['.statement__aside', '.toc'], { opacity: 0, y: 24, duration: 1.1, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: '.statement__aside', start: 'top 90%' } });
 
   $$('[data-reveal]').forEach((el) => {
-    gsap.from(el, { opacity: 0, y: 40, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 92%' } });
+    gsap.from(el, { opacity: 0, y: 36, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 94%' } });
   });
 
-  // depth: inner media drifts against the scroll
-  $$('.films .frame__inner, .lv .frame__inner, .series__stage .frame__inner').forEach((inner) => {
+  // depth: media drifts slightly against the scroll inside its frame
+  $$('.films .frame__inner, .lv .frame__inner, .series__stage > .frame .frame__inner').forEach((inner) => {
     gsap.fromTo(inner, { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: inner.parentNode, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
 
@@ -526,14 +595,13 @@ function initReveals() {
     gsap.from('.tz__info', { opacity: 0, y: 30, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '[data-tz-wrap]', start: 'top 40%' } });
   }
 
-  // contact: letters stretch under the pointer
+  // contact: letters lift under the pointer
   if (FINE) {
     const chars = $$('.contact__mail .char');
     $('.contact__mail').addEventListener('mousemove', (e) => {
       chars.forEach((ch) => {
         const r = ch.getBoundingClientRect();
-        const d = Math.abs(e.clientX - (r.left + r.width / 2));
-        const k = Math.max(0, 1 - d / 220);
+        const k = Math.max(0, 1 - Math.abs(e.clientX - (r.left + r.width / 2)) / 220);
         ch.style.transform = `translateY(${-k * 10}%)`;
         ch.style.color = k > 0.5 ? '#fff' : '';
       });
@@ -542,8 +610,16 @@ function initReveals() {
   }
 }
 
-/* Block Office: vertical scroll → horizontal travel (desktop only) */
+/* Block Office: vertical scroll → horizontal travel (desktop) with progress */
 function initBlock() {
+  const total = campaigns.block.items.length;
+  const count = $('.block__count');
+  const bar = $('.block__bar');
+  const items = $$('.block__item');
+  // pinned (vertical scroll drives it) only on wide screens without reduced motion; otherwise it is a native swipe
+  const touch = window.matchMedia('(max-width: 860px), (prefers-reduced-motion: reduce)').matches;
+  $('.hint-touch').hidden = !touch;
+  $('.hint-scroll').hidden = touch;
   const mm = gsap.matchMedia();
   mm.add('(min-width: 861px) and (prefers-reduced-motion: no-preference)', () => {
     const pin = $('.block__pin');
@@ -552,16 +628,26 @@ function initBlock() {
     gsap.to(track, {
       x: () => -dist(),
       ease: 'none',
+      // runs on every scrubbed frame, so the counter follows what is actually on screen
+      onUpdate() {
+        bar.style.setProperty('--p', this.progress().toFixed(3));
+        const mid = window.innerWidth / 2;
+        let best = 0, bd = Infinity;
+        items.forEach((it, i) => { const r = it.getBoundingClientRect(); const d = Math.abs(r.left + r.width / 2 - mid); if (d < bd) { bd = d; best = i; } });
+        const txt = `${pad(best + 1)} / ${pad(total)}`;
+        if (count.textContent !== txt) count.textContent = txt;
+      },
       scrollTrigger: { trigger: pin, start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1 },
     });
   });
 }
 
-/* ─────────────────────────────── header, menu, misc */
+/* ─────────────────────────────── header, chapter, menu, misc */
 function initHeader(lenis) {
   const h = $('[data-header]');
   let last = 0;
   const onScroll = (y) => {
+    if (!$('#menu').hidden) return;
     if (y > 200 && y > last + 4) h.classList.add('is-hidden');
     else if (y < last - 4 || y < 200) h.classList.remove('is-hidden');
     last = y;
@@ -569,11 +655,30 @@ function initHeader(lenis) {
   if (lenis) lenis.on('scroll', ({ scroll }) => onScroll(scroll));
   else window.addEventListener('scroll', () => onScroll(window.scrollY), { passive: true });
 
-  $$('.header__nav a[href^="#"]').forEach((a) => {
-    const sec = $(a.getAttribute('href'));
-    if (!sec || a.classList.contains('header__cta')) return;
-    ScrollTrigger.create({ trigger: sec, start: 'top 50%', end: 'bottom 50%', onToggle: (s) => a.classList.toggle('is-active', s.isActive) });
+  // active nav + chapter indicator
+  const chap = $('[data-chapter]');
+  let current = '';
+  const setChapter = (txt) => {
+    if (txt === current) return;
+    current = txt;
+    if (RM || !txt) { chap.textContent = txt; return; }
+    gsap.timeline()
+      .to(chap, { yPercent: -100, duration: 0.25, ease: 'power2.in' })
+      .add(() => { chap.textContent = txt; })
+      .fromTo(chap, { yPercent: 100 }, { yPercent: 0, duration: 0.45, ease: 'expo.out' });
+  };
+  $$('[data-chapter-name]').forEach((sec) => {
+    const link = $(`.header__nav a[href="#${sec.id}"]`);
+    ScrollTrigger.create({
+      trigger: sec, start: 'top 50%', end: 'bottom 50%',
+      onToggle: (s) => {
+        link?.classList.toggle('is-active', s.isActive);
+        if (s.isActive) setChapter(`(${sec.dataset.chapterN}) ${sec.dataset.chapterName}`);
+      },
+    });
   });
+  ScrollTrigger.create({ trigger: '.hero', start: 'top bottom', end: 'bottom 50%', onToggle: (s) => s.isActive && setChapter('') });
+  ScrollTrigger.create({ trigger: '.statement', start: 'top 50%', end: 'bottom 50%', onToggle: (s) => s.isActive && setChapter('Índice') });
 
   // anchor links through Lenis
   document.addEventListener('click', (e) => {
@@ -583,39 +688,56 @@ function initHeader(lenis) {
     const t = id === '#top' ? 0 : $(id);
     if (t === null) return;
     e.preventDefault();
-    closeMenu();
+    closeMenu(false);
     if (lenis) lenis.scrollTo(t, { duration: 1.4, easing: (x) => 1 - Math.pow(1 - x, 4) });
     else (t === 0 ? window.scrollTo({ top: 0 }) : t.scrollIntoView());
+    if (t !== 0) { t.setAttribute('tabindex', '-1'); t.focus({ preventScroll: true }); }
   });
 
   const btn = $('.header__menu');
   const menu = $('#menu');
-  function closeMenu() {
+  function closeMenu(returnFocus = true) {
     if (menu.hidden) return;
     menu.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
     btn.textContent = 'Menu';
     lenis?.start();
+    document.documentElement.style.overflow = '';
+    if (returnFocus) btn.focus();
   }
   btn.addEventListener('click', () => {
     if (!menu.hidden) return closeMenu();
     menu.hidden = false;
+    h.classList.remove('is-hidden');
     btn.setAttribute('aria-expanded', 'true');
     btn.textContent = 'Fechar';
     lenis?.stop();
-    if (!RM) gsap.from('#menu a', { yPercent: 60, opacity: 0, duration: 0.8, ease: 'expo.out', stagger: 0.05 });
+    document.documentElement.style.overflow = 'hidden';
+    if (!RM) gsap.from('#menu nav a', { yPercent: 60, opacity: 0, duration: 0.8, ease: 'expo.out', stagger: 0.05 });
+    $('#menu nav a')?.focus({ preventScroll: true });
   });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('keydown', (e) => {
+    if (menu.hidden) return;
+    if (e.key === 'Escape') closeMenu();
+    if (e.key === 'Tab') {
+      const f = [btn, ...$$('a', menu)];
+      const i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    }
+  });
 
   const copy = $('[data-copy]');
+  const status = $('[data-copy-status]');
   copy.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(contact.email);
       copy.textContent = 'Copiado ✓';
+      status.textContent = 'E-mail copiado';
     } catch {
       copy.textContent = contact.email;
     }
-    setTimeout(() => (copy.textContent = 'Copiar e-mail'), 2200);
+    setTimeout(() => { copy.textContent = 'Copiar e-mail'; status.textContent = ''; }, 2200);
   });
 }
 
@@ -637,7 +759,7 @@ function preload() {
   return new Promise((res) => {
     gsap.timeline({ onComplete: () => { end(); res(); } })
       .to(path, { strokeDashoffset: 0, duration: 1.25, ease: 'power2.inOut' }, 0)
-      .to(c, { v: 100, duration: 1.25, ease: 'power2.inOut', onUpdate: () => (count.textContent = pad(Math.round(c.v)).padStart(3, '0')) }, 0)
+      .to(c, { v: 100, duration: 1.25, ease: 'power2.inOut', onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(3, '0')) }, 0)
       .to(path, { fillOpacity: 1, duration: 0.25, ease: 'power1.out' }, 1.15)
       .add(() => flash(0.85), 1.5)
       .set(pre, { opacity: 0 }, 1.52);
@@ -653,12 +775,12 @@ if (lenis) {
   gsap.ticker.lagSmoothing(0);
 }
 player.init(lenis);
+initBlock(); // the pin must exist before any trigger placed below it is measured
 initOpeners();
 initCursor();
 initHeader(lenis);
 initPreviews();
 initFloatPreview();
-initBlock();
 preload().then(() => {
   initHero();
   initReveals();
