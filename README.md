@@ -54,7 +54,7 @@ Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assin
 - `prefers-reduced-motion`: sem smooth scroll, sem parallax, sem flash, sem autoplay.
 - `Save-Data`: sem previews automáticos.
 - Série (O Peso da História): trilho de 7 episódios; passar o cursor troca o quadro do palco, clicar toca o episódio no próprio palco (API do YouTube, host `youtube-nocookie`; sem a API, cai para iframe da playlist no índice escolhido). Trilho na ordem da série (#1→#7) com as thumbs oficiais; a playlist no YouTube está invertida, então cada episódio guarda sua posição (`idx`) em `src/data.js`. Card do canal com foto e banner oficiais e 245 mil inscritos (conferido na página do canal).
-- Reel: "Do conceito ao corte final" — 35,5 s em 24 fps com os planos da pasta *frames para reels LP*, terminando no personagem que entra na parede de TVs (o preto emenda o loop). Cada quadro é único (pulldown revertido, fontes 30 fps reais tocadas a 24 fps). Três cortes do loop — 1080p, 720p e vertical 608×1080 reenquadrado. Decupagem em `tools/reel-curadoria.md`.
+- Reel: "Do conceito ao corte final" — 38,7 s em 24 fps com os planos da pasta *frames para reels LP*, abrindo no sol à venda no supermercado e terminando no personagem que entra na parede de TVs (o preto emenda o loop). Cada quadro é único (pulldown revertido, fontes 30 fps reais tocadas a 24 fps). Três cortes do loop — 1080p, 720p e vertical 608×1080 reenquadrado. Decupagem em `tools/reel-curadoria.md`.
 - No máximo 4 vídeos de preview tocam ao mesmo tempo.
 - Player: ← → navegam entre trabalhos, M silencia, F tela cheia, Esc fecha; a interface some após 2,6 s sem movimento (desktop).
 - Áreas de toque ≥ 44 px; foco visível; foco preso no player e no menu.
