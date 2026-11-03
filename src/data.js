@@ -17,7 +17,7 @@ export const reel = {
 // Ordem pensada para o desktop: um filme em destaque e depois pares de mesma proporção.
 // Títulos = estilo/conceito de cada filme (nome de trabalho no comentário).
 export const films = [
-  { id: 'f-vibe', title: 'Realismo de flash', fmt: 'h', ratio: '4:3' }, // Don't Kill My Vibe
+  { id: 'f-comic', title: 'Comic urban realism', fmt: 'h', ratio: '4:3' },
   { id: 'f-grandmas', title: 'Gangsters da terceira idade', fmt: 'h', ratio: '4:3' }, // Grandmas Are the Real Gangstas
   { id: 'f-escravo', title: 'Surrealismo político', fmt: 'h', ratio: '4:3' }, // Escravo Moderno
   { id: 'f-iconoclastia', title: 'Iconoclastia', fmt: 'h', ratio: '16:9' },

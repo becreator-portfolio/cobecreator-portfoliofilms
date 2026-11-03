@@ -24,7 +24,7 @@
     <link rel="preload" href="/media/reel/poster-v.webp" as="image" fetchpriority="high" media="(orientation: portrait) and (max-width: 900px)" />
   </head>
   <body>
-    <a class="skip" href="#filmes">Pular para os trabalhos</a>
+    <a class="skip" href="#campanhas">Pular para os trabalhos</a>
 
     <div class="preloader" aria-hidden="true">
       <svg class="preloader__logo" viewBox="40 92 1956 506"><path /></svg>
@@ -37,11 +37,11 @@
       </a>
       <span class="header__chapter mono" aria-hidden="true"><span data-chapter></span></span>
       <nav class="header__nav mono" aria-label="Seções">
-        <a href="#filmes">Filmes</a>
-        <a href="#clipes">Clipes</a>
         <a href="#campanhas">Campanhas</a>
         <a href="#serie">Série</a>
+        <a href="#clipes">Clipes</a>
         <a href="#social">Social</a>
+        <a href="#filmes">Filmes</a>
         <a href="#contato">Contato</a>
       </nav>
       <button class="header__menu mono" aria-expanded="false" aria-controls="menu">Menu</button>
@@ -91,20 +91,32 @@
         </nav>
       </section>
 
-      <!-- FILMES -->
-      <section class="section" id="filmes" aria-labelledby="t-filmes" data-chapter-name="Filmes" data-chapter-n="01">
+      <!-- CAMPANHAS -->
+      <section class="section section--flush" id="campanhas" aria-labelledby="t-camp" data-chapter-name="Campanhas" data-chapter-n="01">
         <header class="shead">
           <span class="shead__n mono">01</span>
-          <h2 class="shead__t" id="t-filmes" data-morph="expand">Filmes</h2>
-          <span class="shead__c mono" data-count="films"></span>
+          <h2 class="shead__t" id="t-camp" data-morph="expand">Campanhas</h2>
+          <span class="shead__c mono" data-count="campaigns"></span>
         </header>
-        <div class="films" data-films></div>
+        <div data-block></div>
+        <div data-case></div>
+        <div data-lv></div>
+      </section>
+
+      <!-- SÉRIE -->
+      <section class="section" id="serie" aria-labelledby="t-serie" data-chapter-name="Série" data-chapter-n="02">
+        <header class="shead">
+          <span class="shead__n mono">02</span>
+          <h2 class="shead__t" id="t-serie" data-morph="expand">Série</h2>
+          <span class="shead__c mono" data-count="series"></span>
+        </header>
+        <div data-series></div>
       </section>
 
       <!-- CLIPES -->
-      <section class="section" id="clipes" aria-labelledby="t-clipes" data-chapter-name="Clipes" data-chapter-n="02">
+      <section class="section" id="clipes" aria-labelledby="t-clipes" data-chapter-name="Clipes" data-chapter-n="03">
         <header class="shead">
-          <span class="shead__n mono">02</span>
+          <span class="shead__n mono">03</span>
           <h2 class="shead__t" id="t-clipes" data-morph="expand">Clipes</h2>
           <span class="shead__c mono" data-count="clips"></span>
         </header>
@@ -112,36 +124,24 @@
         <div class="float-preview" aria-hidden="true"><video muted loop playsinline preload="none"></video><span class="float-preview__tc mono"></span><span class="playhead"></span></div>
       </section>
 
-      <!-- CAMPANHAS -->
-      <section class="section section--flush" id="campanhas" aria-labelledby="t-camp" data-chapter-name="Campanhas" data-chapter-n="03">
-        <header class="shead">
-          <span class="shead__n mono">03</span>
-          <h2 class="shead__t" id="t-camp" data-morph="expand">Campanhas</h2>
-          <span class="shead__c mono" data-count="campaigns"></span>
-        </header>
-        <div data-case></div>
-        <div data-block></div>
-        <div data-lv></div>
-      </section>
-
-      <!-- SÉRIE -->
-      <section class="section" id="serie" aria-labelledby="t-serie" data-chapter-name="Série" data-chapter-n="04">
+      <!-- SOCIAL -->
+      <section class="section" id="social" aria-labelledby="t-social" data-chapter-name="Social" data-chapter-n="04">
         <header class="shead">
           <span class="shead__n mono">04</span>
-          <h2 class="shead__t" id="t-serie" data-morph="expand">Série</h2>
-          <span class="shead__c mono" data-count="series"></span>
-        </header>
-        <div data-series></div>
-      </section>
-
-      <!-- SOCIAL -->
-      <section class="section" id="social" aria-labelledby="t-social" data-chapter-name="Social" data-chapter-n="05">
-        <header class="shead">
-          <span class="shead__n mono">05</span>
           <h2 class="shead__t" id="t-social" data-morph="expand">Social</h2>
           <span class="shead__c mono" data-count="social"></span>
         </header>
         <div data-social></div>
+      </section>
+
+      <!-- FILMES -->
+      <section class="section" id="filmes" aria-labelledby="t-filmes" data-chapter-name="Filmes" data-chapter-n="05">
+        <header class="shead">
+          <span class="shead__n mono">05</span>
+          <h2 class="shead__t" id="t-filmes" data-morph="expand">Filmes</h2>
+          <span class="shead__c mono" data-count="films"></span>
+        </header>
+        <div class="films" data-films></div>
       </section>
 
       <!-- CONTATO -->

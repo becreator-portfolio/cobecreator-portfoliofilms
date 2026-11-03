@@ -57,12 +57,13 @@ const counts = {
   series: series.episodes,
   social: social.reduce((a, g) => a + g.items.length, 0),
 };
+// ordem das seções: o que um lead procura primeiro (marcas), prova social (série), clipes, social e os filmes autorais
 const chapters = [
-  ['filmes', 'Filmes', counts.films, src('f-vibe', 'poster.webp')],
-  ['clipes', 'Clipes', counts.clips, src('c-sol', 'poster.webp')],
   ['campanhas', 'Campanhas', counts.campaigns, src('b-berga', 'poster.webp')],
   ['serie', 'Série', counts.series, src('serie', 'poster.webp')],
+  ['clipes', 'Clipes', counts.clips, src('c-sol', 'poster.webp')],
   ['social', 'Social', counts.social, src('s-ryu', 'poster.webp')],
+  ['filmes', 'Filmes', counts.films, src('f-comic', 'poster.webp')],
 ];
 
 function render() {
