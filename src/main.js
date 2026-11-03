@@ -12,7 +12,8 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 const SAVE = navigator.connection?.saveData === true;
-const MAX_AUTOPLAY = 4;
+// celular: menos decodificadores abertos ao mesmo tempo (Safari/WebView do Instagram falham acima disso)
+const MAX_AUTOPLAY = FINE ? 4 : 2;
 
 const src = (id, f) => `/media/${id}/${f}`;
 const fmtTime = (s) => {
@@ -257,17 +258,18 @@ function render() {
 const playing = new Set();
 const autoQueue = [];
 function startPreview(fr, auto = false) {
-  if (!fr || SAVE) return;
+  if (!fr || SAVE || fr.dataset.noPreview) return;
   const v = $('video', fr);
   if (!v) return;
-  if (!v.src) v.src = v.dataset.src;
-  const p = v.play();
-  if (p) p.then(() => { if (autoQueue.includes(fr)) fr.classList.add('is-playing'); else v.pause(); }).catch(() => {});
+  if (!v.getAttribute('src')) v.src = v.dataset.src;
   playing.add(fr);
   const i = autoQueue.indexOf(fr);
   if (i > -1) autoQueue.splice(i, 1);
   autoQueue.push(fr);
   while (autoQueue.length > MAX_AUTOPLAY) stopPreview(autoQueue[0]);
+  const p = v.play();
+  // o vídeo só aparece quando há quadro na tela; até lá fica o pôster
+  if (p) p.then(() => { if (!playing.has(fr)) v.pause(); }).catch(() => {});
 }
 function stopPreview(fr) {
   if (!fr) return;
@@ -278,11 +280,32 @@ function stopPreview(fr) {
   playing.delete(fr);
   const i = autoQueue.indexOf(fr);
   if (i > -1) autoQueue.splice(i, 1);
+  // touch: devolve o decodificador ao sair da tela (o pôster cobre o quadro)
+  if (!FINE && v.getAttribute('src')) { v.removeAttribute('src'); v.load(); }
+}
+// estados reais do <video>: mostra só quando está tocando; erro → tenta de novo uma vez, depois fica no pôster
+function bindPreview(fr) {
+  const v = $('video', fr);
+  if (!v) return;
+  v.addEventListener('playing', () => { if (playing.has(fr)) fr.classList.add('is-playing'); else v.pause(); });
+  v.addEventListener('error', () => {
+    if (!v.getAttribute('src')) return;
+    fr.classList.remove('is-playing');
+    const retry = !fr.dataset.retried;
+    fr.dataset.retried = '1';
+    const keep = playing.has(fr);
+    stopPreview(fr);
+    v.removeAttribute('src');
+    v.load();
+    if (!retry) { fr.dataset.noPreview = '1'; return; }
+    if (keep) setTimeout(() => { if (fr.dataset.inview || fr.matches(':hover, :focus')) startPreview(fr, true); }, 600);
+  });
 }
 
 function initPreviews() {
   const frames = $$('.frame').filter((f) => $('video', f));
   frames.forEach((fr) => {
+    bindPreview(fr);
     if (FINE) {
       fr.addEventListener('mouseenter', () => startPreview(fr));
       fr.addEventListener('mouseleave', () => { if (!fr.dataset.inview) stopPreview(fr); });
@@ -657,12 +680,15 @@ function initCounts() {
 function shutter(frames, trigger, stagger = 0) {
   if (!frames.length) return;
   const inners = frames.map((f) => $('.frame__inner', f));
-  gsap.set(frames, { clipPath: 'inset(100% 0% 0% 0%)' });
+  // touch: sem clip-path animado sobre <video> (WebKit/WebView piscam ou travam o vídeo que começa a tocar no meio da máscara)
+  const from = FINE ? { clipPath: 'inset(100% 0% 0% 0%)' } : { opacity: 0, y: 32 };
+  const to = FINE ? { clipPath: 'inset(0% 0% 0% 0%)', clearProps: 'clipPath' } : { opacity: 1, y: 0, clearProps: 'opacity,transform' };
+  gsap.set(frames, from);
   gsap.set(inners, { scale: 1.16 });
   ScrollTrigger.create({
     trigger, start: 'top 88%', once: true,
     onEnter: () => {
-      gsap.to(frames, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.25, ease: 'expo.out', stagger, clearProps: 'clipPath' });
+      gsap.to(frames, { ...to, duration: 1.25, ease: 'expo.out', stagger });
       gsap.to(inners, { scale: 1, duration: 1.6, ease: 'expo.out', stagger });
     },
   });

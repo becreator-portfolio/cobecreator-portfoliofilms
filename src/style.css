@@ -383,7 +383,10 @@ body::after {
   .case__board { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
-  .case__media, .case__body { grid-column: 1 / -1; }
+  /* celular: marca → anúncio → frase → storyboard (o corpo se desfaz no grid para o título subir) */
+  .case__body { display: contents; }
+  .case__head, .case__media, .case__line, .case__board { grid-column: 1 / -1; }
+  .case__head { order: -1; }
   .case__board { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 calc(var(--m) * -1); padding: 0 var(--m) 4px; scrollbar-width: none; }
   .case__board::-webkit-scrollbar { display: none; }
   .case__board li { flex: 0 0 28vw; scroll-snap-align: start; scroll-margin-left: var(--m); }
