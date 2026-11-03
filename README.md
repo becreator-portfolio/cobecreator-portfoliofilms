@@ -31,7 +31,7 @@ Gera `dist/` (estático). Na Vercel: importar o repositório do GitHub, framewor
 
 ### Codificação usada
 
-- full: H.264, até 1920×1080 (horizontal) / 1080×1920 (vertical), CRF 25, máx. 3,8 Mbps, AAC 128k, faststart.
+- full: H.264, até 1920×1080 (horizontal) / 1080×1920 (vertical), CRF 25, máx. 3,8 Mbps, AAC 128k, faststart. Nível H.264 até 4.2 (`-level:v 4.x -refs 4`): acima disso alguns Android recusam o arquivo.
 - preview: 5 s sem áudio, 720 px (horizontal) / 480 px (vertical), CRF 28.
 
 ## Tipografia
@@ -57,6 +57,8 @@ Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assin
 - Reel: "Do conceito ao corte final" — 35,5 s em 24 fps com os planos da pasta *frames para reels LP*, abrindo no olho iluminado pela tela e terminando no personagem que entra na parede de TVs (o preto emenda o loop). Cada quadro é único (pulldown revertido, fontes 30 fps reais tocadas a 24 fps). Três cortes do loop — 1080p, 720p e vertical 608×1080 reenquadrado. Decupagem em `tools/reel-curadoria.md`.
 - Ordem das seções pensada para leads: Campanhas (Block Office → Socializei → LV) · Série · Clipes · Social · Filmes.
 - Filmes: pôsteres e prévias começam no 1º quadro de cada filme.
-- No máximo 4 vídeos de preview tocam ao mesmo tempo.
+- No máximo 4 vídeos de preview tocam ao mesmo tempo (2 no celular). No celular a prévia devolve o decodificador ao sair da tela; se der erro, tenta de novo uma vez e fica no pôster.
+- Socializei: case com 2 anúncios (01 · 00:20, 02 · 00:30) — o seletor troca vídeo, frase de fechamento e storyboard; cada quadro do storyboard abre o anúncio naquele ponto. O AD02 veio em 16:9 com barras: recortado o vertical 1215×2160 do centro, 60 fps preservados. No celular, a marca fica acima do vídeo.
+- LV Agência: prévias a partir do 1º quadro.
 - Player: ← → navegam entre trabalhos, M silencia, F tela cheia, Esc fecha; a interface some após 2,6 s sem movimento (desktop).
 - Áreas de toque ≥ 44 px; foco visível; foco preso no player e no menu.

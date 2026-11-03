@@ -48,13 +48,21 @@ function frame(item, { list, idx, label = 'Play', ratio, cls = '' } = {}) {
 }
 const cap = ({ n, t, m }) =>
   `<figcaption class="cap">${n ? `<span class="cap__n">${n}</span>` : ''}<span class="cap__t">${t}</span><span class="cap__m">${m}</span></figcaption>`;
+const caseLine = (ad) => ad.line.map((l) => `<span>${l}</span>`).join('');
+const caseBoard = (ad, idx) =>
+  ad.board
+    .map(
+      (b) => `<li><button class="case__still" data-seek="${b.t}" data-seek-idx="${idx}" data-cursor="Assistir de ${fmtTime(b.t)}" aria-label="Assistir ${esc(ad.title)} a partir de ${fmtTime(b.t)}">
+        <img src="${src(ad.id, b.img + '.webp')}" alt="" loading="lazy" decoding="async" /></button><span class="mono dim">${fmtTime(b.t)}</span></li>`
+    )
+    .join('');
 const card = (item, opts, c, extra = '') => `<figure class="card" data-reveal ${extra}>${frame(item, opts)}${cap(c)}</figure>`;
 
 /* ─────────────────────────────── render */
 const counts = {
   films: films.length,
   clips: clips.length,
-  campaigns: 1 + campaigns.block.items.length + campaigns.lv.items.length,
+  campaigns: campaigns.socializei.ads.length + campaigns.block.items.length + campaigns.lv.items.length,
   series: series.episodes,
   social: social.reduce((a, g) => a + g.items.length, 0),
 };
@@ -124,26 +132,24 @@ function render() {
   // section counts: just the number, superscript to the title
   Object.entries(counts).forEach(([k, n]) => { const el = $(`[data-count="${k}"]`); if (el) { el.textContent = pad(n); el.dataset.n = n; } });
 
-  // Socializei — case: the ad + its storyboard (each frame opens the film at that moment)
+  // Socializei — case: the ads + the storyboard of the one selected (each still opens the ad at that moment)
   const sc = campaigns.socializei;
-  reg('socializei', [{ ...sc }]);
+  const ads = sc.ads.map((a) => ({ ...a, title: `${sc.title} — ${a.title}`, kind: sc.kind }));
+  reg('socializei', ads);
   $('[data-case]').innerHTML = `
     <div class="case" data-case-wrap>
-      <div class="case__media">${frame(sc, { list: 'socializei', idx: 0, ratio: '9 / 16', cls: 'frame--tc' })}</div>
+      <div class="case__media">${ads.map((a, i) => `<div class="case__ad"${i ? ' hidden' : ''}>${frame(a, { list: 'socializei', idx: i, ratio: '9 / 16', cls: 'frame--tc' })}</div>`).join('')}</div>
       <div class="case__body">
         <div class="case__head">
           <h3 class="ptitle">${sc.title}</h3>
-          <span class="mono dim">${sc.kind} · ${dur(sc.id)}</span>
+          ${ads.length > 1
+            ? `<div class="case__ads mono" role="group" aria-label="Anúncios ${esc(sc.title)}">${ads
+                .map((a, i) => `<button class="case__adbtn" data-ad="${i}" aria-pressed="${!i}"><span class="case__adn">${pad(i + 1)}</span>${sc.kind} · ${dur(a.id)}</button>`)
+                .join('')}</div>`
+            : `<span class="mono dim">${sc.kind} · ${dur(ads[0].id)}</span>`}
         </div>
-        <p class="case__line">${sc.line.map((l) => `<span>${l}</span>`).join('')}</p>
-        <ol class="case__board" aria-label="Storyboard — ${sc.title}">
-          ${sc.board
-            .map(
-              (b) => `<li><button class="case__still" data-seek="${b.t}" data-cursor="Assistir de ${fmtTime(b.t)}" aria-label="Assistir ${sc.title} a partir de ${fmtTime(b.t)}">
-                <img src="${src(sc.id, b.img + '.webp')}" alt="" loading="lazy" decoding="async" /></button><span class="mono dim">${fmtTime(b.t)}</span></li>`
-            )
-            .join('')}
-        </ol>
+        <p class="case__line" aria-live="polite">${caseLine(ads[0])}</p>
+        <ol class="case__board" aria-label="Storyboard — ${esc(ads[0].title)}">${caseBoard(ads[0], 0)}</ol>
       </div>
     </div>`;
 
@@ -561,7 +567,7 @@ function initOpeners() {
     const o = e.target.closest('[data-open]');
     if (o) return player.open(o.dataset.open, 0, null);
     const sk = e.target.closest('[data-seek]');
-    if (sk) return player.open('socializei', 0, sk, +sk.dataset.seek);
+    if (sk) return player.open('socializei', +(sk.dataset.seekIdx || 0), sk, +sk.dataset.seek);
     const l = e.target.closest('[data-open-list]');
     if (l) return player.open(l.dataset.openList, +l.dataset.idx, l);
     const f = e.target.closest('.frame[data-list]');
@@ -1097,6 +1103,38 @@ function fitMail(measure) {
   mail.style.setProperty('--fs-mail', `${((100 * box) / (wa + wb)) * 0.985}px`);
 }
 
+/* ─────────────────────────────── case Socializei: 01 / 02 troca anúncio, frase e storyboard */
+function initCase() {
+  const wrap = $('[data-case-wrap]');
+  const btns = wrap ? $$('.case__adbtn', wrap) : [];
+  if (!btns.length) return;
+  const ads = playlists.socializei;
+  const panes = $$('.case__ad', wrap);
+  const line = $('.case__line', wrap);
+  const board = $('.case__board', wrap);
+  let cur = 0;
+  const select = (i) => {
+    if (i === cur || !panes[i]) return;
+    stopPreview($('.frame', panes[cur]));
+    panes[cur].hidden = true;
+    panes[i].hidden = false;
+    btns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
+    line.innerHTML = caseLine(ads[i]);
+    board.innerHTML = caseBoard(ads[i], i);
+    board.setAttribute('aria-label', `Storyboard — ${ads[i].title}`);
+    board.scrollLeft = 0;
+    cur = i;
+    if (RM) return;
+    // mesmo gesto do obturador; no touch, sem clip-path sobre o vídeo
+    const fr = $('.frame', panes[i]);
+    if (FINE) gsap.fromTo(fr, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: 'expo.out', clearProps: 'clipPath' });
+    else gsap.fromTo(fr, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out', clearProps: 'opacity' });
+    gsap.fromTo($$('span', line), { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, ease: 'expo.out', stagger: 0.08, clearProps: 'transform,opacity' });
+    gsap.fromTo($$('li', board), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger: 0.05, clearProps: 'transform,opacity' });
+  };
+  btns.forEach((b) => b.addEventListener('click', () => select(+b.dataset.ad)));
+}
+
 /* ─────────────────────────────── boot */
 render();
 setHeroPoster();
@@ -1113,6 +1151,7 @@ if (lenis) {
 player.init(lenis);
 initBlock(); // the pin must exist before any trigger placed below it is measured
 initOpeners();
+initCase();
 initCursor();
 initHeader(lenis);
 initPreviews();

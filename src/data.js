@@ -37,19 +37,38 @@ export const clips = [
 ];
 
 export const campaigns = {
-  // case de abertura da seção: anúncio vertical + storyboard (clicar num quadro abre o vídeo naquele ponto)
+  // case: anúncios verticais + storyboard (clicar num quadro abre o vídeo naquele ponto)
+  // line = fechamento do próprio anúncio, sempre em 2 linhas
   socializei: {
-    id: 'k-socializei',
     title: 'Socializei',
     kind: 'Anúncio',
-    line: ['Encontre as', 'palavras certas.'], // fechamento do próprio anúncio, sempre em 2 linhas
-    board: [
-      { img: 'still1', t: 2.8 },
-      { img: 'still2', t: 6.2 },
-      { img: 'still3', t: 9.6 },
-      { img: 'still4', t: 13.1 },
-      { img: 'still5', t: 16.6 },
-      { img: 'still6', t: 19.9 },
+    ads: [
+      {
+        id: 'k-socializei',
+        title: 'Anúncio 01',
+        line: ['Encontre as', 'palavras certas.'],
+        board: [
+          { img: 'still1', t: 2.8 },
+          { img: 'still2', t: 6.2 },
+          { img: 'still3', t: 9.6 },
+          { img: 'still4', t: 13.1 },
+          { img: 'still5', t: 16.6 },
+          { img: 'still6', t: 19.9 },
+        ],
+      },
+      {
+        id: 'k-socializei2', // AD02_socializei_v4_60fps (vertical recortado do quadro 16:9)
+        title: 'Anúncio 02',
+        line: ['Nem toda cobrança', 'precisa virar treta.'],
+        board: [
+          { img: 'still1', t: 5.0 },
+          { img: 'still2', t: 9.5 },
+          { img: 'still3', t: 13.0 },
+          { img: 'still4', t: 16.5 },
+          { img: 'still5', t: 22.0 },
+          { img: 'still6', t: 28.5 },
+        ],
+      },
     ],
   },
   block: {

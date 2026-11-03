@@ -360,6 +360,19 @@ body::after {
 .case__media .frame { aspect-ratio: 9 / 16; }
 .case__body { grid-column: 6 / -1; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
 .case__head { display: flex; flex-direction: column; gap: 14px; }
+.case__ad[hidden] { display: none; }
+.case .frame__inner { inset: 0; } /* sem parallax aqui: o anúncio inteiro, do topo à faixa de logos */
+/* 01 / 02: seletor de anúncios — mono, o ativo em papel com o ponto rec */
+.case__ads { display: flex; flex-wrap: wrap; gap: 0 28px; margin-top: -4px; }
+.case__adbtn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px;
+  color: var(--mute); border-bottom: 1px solid transparent; transition: color 0.3s ease, border-color 0.3s ease;
+}
+.case__adn { display: inline-flex; align-items: center; gap: 8px; }
+.case__adn::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.35; transition: background 0.3s ease, opacity 0.3s ease; }
+.case__adbtn[aria-pressed='true'] { color: var(--paper); border-bottom-color: var(--paper); }
+.case__adbtn[aria-pressed='true'] .case__adn::before { background: var(--rec); opacity: 1; }
+@media (hover: hover) { .case__adbtn:hover { color: var(--paper); } }
 .case__line {
   font-weight: 800; font-stretch: 82%; text-transform: uppercase;
   font-size: var(--t-l); line-height: 0.94; letter-spacing: -0.02em;
