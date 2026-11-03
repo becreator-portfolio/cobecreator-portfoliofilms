@@ -46,7 +46,7 @@ Escala única em `src/style.css` (`--t-xxl` → `--t-xs`); comparativo das monoe
 
 ## Motion
 
-Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assinatura do eixo de largura), peças abrem como obturador, o player cresce a partir da miniatura clicada, previews mostram barra de reprodução, o índice mostra uma prévia da seção, o Block Office destaca a peça central e o botão do reel tem leve magnetismo. Tudo desligado com `prefers-reduced-motion`.
+Cada movimento tem função: na abertura a assinatura é desenhada, preenche e voa até o logo do topo enquanto o preto se dissolve sobre o reel, que já toca por baixo (um plano só, sem corte seco nem flash; na volta à página, versão curta); títulos expandem de 62% a 125% com o scroll (assinatura do eixo de largura), peças abrem como obturador, o player cresce a partir da miniatura clicada, previews mostram barra de reprodução, o índice mostra uma prévia da seção, o Block Office destaca a peça central e o botão do reel tem leve magnetismo. Tudo desligado com `prefers-reduced-motion`.
 
 ## Decisões
 
@@ -54,7 +54,7 @@ Cada movimento tem função: títulos expandem de 62% a 125% com o scroll (assin
 - `prefers-reduced-motion`: sem smooth scroll, sem parallax, sem flash, sem autoplay.
 - `Save-Data`: sem previews automáticos.
 - Série (O Peso da História): trilho de 7 episódios; passar o cursor troca o quadro do palco, clicar toca o episódio no próprio palco (API do YouTube, host `youtube-nocookie`; sem a API, cai para iframe da playlist no índice escolhido). Trilho na ordem da série (#1→#7) com as thumbs oficiais; a playlist no YouTube está invertida, então cada episódio guarda sua posição (`idx`) em `src/data.js`. Card do canal com foto e banner oficiais e 245 mil inscritos (conferido na página do canal).
-- Reel: "Do conceito ao corte final" — 35,5 s em 24 fps com os planos da pasta *frames para reels LP*, abrindo no olho iluminado pela tela e terminando no personagem que entra na parede de TVs (o preto emenda o loop). Cada quadro é único (pulldown revertido, fontes 30 fps reais tocadas a 24 fps). Três cortes do loop — 1080p, 720p e vertical 608×1080 reenquadrado. Decupagem em `tools/reel-curadoria.md`.
+- Reel: "Do conceito ao corte final" — 35,5 s em 24 fps com os planos da pasta *frames para reels LP*, abrindo no olho iluminado pela tela e terminando no personagem que entra na parede de TVs (o preto emenda o loop). Cada quadro é único (pulldown revertido, fontes 30 fps reais tocadas a 24 fps). Três cortes do loop — 1080p, 720p e vertical 608×1080 reenquadrado. Nos loops do topo (mudos) o plano de abertura respira: o olho fica 4,75 s, com aproximação mais lenta (loop de 38 s, `tools/reel-hero.py`); o "Assistir reel" com música mantém o corte original na grade da trilha. Decupagem em `tools/reel-curadoria.md`.
 - Ordem das seções pensada para leads: Campanhas (Block Office → Socializei → LV) · Série · Clipes · Social · Filmes.
 - Filmes: pôsteres e prévias começam no 1º quadro de cada filme.
 - No máximo 4 vídeos de preview tocam ao mesmo tempo (2 no celular). No celular a prévia devolve o decodificador ao sair da tela; se der erro, tenta de novo uma vez e fica no pôster.

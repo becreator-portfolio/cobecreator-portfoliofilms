@@ -48,6 +48,8 @@ Recorte 9:16 da imagem nativa, reenquadrado por plano; o tríptico do Block Offi
 | Arquivo | Uso | Formato | Peso |
 |---|---|---|---|
 | `full.mp4` | "Assistir reel" (com som) | 1920×1080 · 24 fps · 35,5 s | 35 MB |
-| `loop.mp4` | topo, telas > 1280 px | 1920×1080 | 15 MB |
-| `loop-sm.mp4` | topo, telas até 1280 px / celular deitado | 1280×720 | 12 MB |
-| `loop-v.mp4` | topo, celular/tablet em pé | 608×1080 | 11 MB |
+| `loop.mp4` | topo, telas > 1280 px | 1920×1080 · 38 s | 16 MB |
+| `loop-sm.mp4` | topo, telas até 1280 px / celular deitado | 1280×720 · 38 s | 12 MB |
+| `loop-v.mp4` | topo, celular/tablet em pé | 608×1080 · 38 s | 12 MB |
+
+Loops do topo: o olho abre com 4,75 s (fonte inteira, piscada perto de 2 s, aproximação de 6 %) em vez de 2,1 s, para a abertura do site não cortar cedo demais. O reel com som segue o corte de 35,5 s na grade da música. Todos em H.264 nível 4.1.

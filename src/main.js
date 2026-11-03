@@ -615,6 +615,19 @@ function setHeroPoster() {
   if (v) v.poster = heroSource().poster;
 }
 
+// carrega o corte certo e toca (idempotente: a abertura chama antes do resto do topo existir)
+function heroPlay() {
+  const v = $('.hero__video');
+  if (!v || RM || SAVE) return;
+  if (!v.getAttribute('src')) {
+    const pick = heroSource();
+    v.poster = pick.poster;
+    v.src = pick.src;
+    v.preload = 'auto';
+  }
+  if (heroState.visible && player.el.hidden) v.play().catch(() => {});
+}
+
 function initHero() {
   const v = $('.hero__video');
   const tc = $('[data-tc]');
@@ -635,11 +648,7 @@ function initHero() {
   });
   tick();
   if (RM || SAVE) return;
-  const pick = heroSource();
-  v.poster = pick.poster;
-  v.src = pick.src;
-  v.preload = 'auto';
-  v.play().catch(() => {});
+  heroPlay();
   // girar o celular troca para o corte certo, mantendo o ponto do loop
   PORTRAIT.addEventListener('change', () => {
     const next = heroSource();
@@ -1038,27 +1047,59 @@ function initHeader(lenis) {
 }
 
 /* ─────────────────────────────── preloader */
+// A assinatura é desenhada, preenche e voa até o logo do topo enquanto o preto se dissolve sobre o reel,
+// que já começa a tocar por baixo — a abertura é um plano só, sem corte seco nem flash.
 function preload() {
   const pre = $('.preloader');
-  const path = $('.preloader__logo path');
+  const svg = $('.preloader__logo');
+  const path = $('path', svg);
   const count = $('.preloader__count');
+  const logo = $('.hero__logo');
+  const video = $('.hero__video');
   document.body.classList.add('is-loading');
   const end = () => { pre.remove(); document.body.classList.remove('is-loading'); };
-  if (RM || sessionStorage.getItem('cb-seen')) {
-    gsap.to(pre, { opacity: 0, duration: RM ? 0.01 : 0.4, onComplete: end });
+  if (RM) {
+    end();
     return Promise.resolve();
   }
+  const first = !sessionStorage.getItem('cb-seen');
   sessionStorage.setItem('cb-seen', '1');
-  const len = path.getTotalLength();
-  gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+  const chrome = ['.hero__top', '.hero__bottom', '.header'];
+  gsap.set(chrome, { opacity: 0 });
+  gsap.set(logo, { opacity: 0 });
   const c = { v: 0 };
   return new Promise((res) => {
-    gsap.timeline({ onComplete: () => { end(); res(); } })
-      .to(path, { strokeDashoffset: 0, duration: 1.25, ease: 'power2.inOut' }, 0)
-      .to(c, { v: 100, duration: 1.25, ease: 'power2.inOut', onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(3, '0')) }, 0)
-      .to(path, { fillOpacity: 1, duration: 0.25, ease: 'power1.out' }, 1.15)
-      .add(() => flash(0.85), 1.5)
-      .set(pre, { opacity: 0 }, 1.52);
+    const tl = gsap.timeline({ onComplete: () => { gsap.set(logo, { clearProps: 'opacity' }); end(); res(); } });
+    if (first) {
+      const len = path.getTotalLength();
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+      tl.to(path, { strokeDashoffset: 0, duration: 1.25, ease: 'power2.inOut' }, 0)
+        .to(c, { v: 100, duration: 1.25, ease: 'power2.inOut', onUpdate: () => (count.textContent = String(Math.round(c.v)).padStart(3, '0')) }, 0)
+        .to(path, { fillOpacity: 1, duration: 0.35, ease: 'power1.out' }, 1.05)
+        .to(path, { strokeOpacity: 0, duration: 0.35, ease: 'power1.out' }, 1.2);
+    } else {
+      gsap.set(path, { fillOpacity: 1, strokeOpacity: 0 });
+      gsap.set(count, { opacity: 0 });
+      tl.from(svg, { opacity: 0, duration: 0.35, ease: 'power1.out' }, 0);
+    }
+    const at = first ? 1.45 : 0.4;  // a assinatura respira um instante antes de sair
+    const dur = first ? 1.2 : 0.95;
+    tl.add(() => {
+      heroPlay();
+      // FLIP: do centro até o lugar exato do logo do topo (mesmo viewBox → encaixe sem salto)
+      const pr = svg.getBoundingClientRect();
+      const hr = logo.getBoundingClientRect();
+      const landing = hr.width > 0 && hr.bottom > 0 && hr.top < innerHeight;
+      gsap.timeline()
+        .to(count, { opacity: 0, duration: 0.3, ease: 'power1.out' }, 0)
+        .to(svg, landing
+          ? { x: hr.left - pr.left, y: hr.top - pr.top, scale: hr.width / pr.width, transformOrigin: '0 0', duration: dur, ease: 'expo.inOut' }
+          : { opacity: 0, duration: dur * 0.6, ease: 'power2.out' }, 0)
+        .to(pre, { backgroundColor: 'rgba(12, 11, 9, 0)', duration: dur * 0.85, ease: 'power2.inOut' }, dur * 0.12)
+        .fromTo(video, { scale: 1.12 }, { scale: 1, duration: dur * 1.9, ease: 'expo.out', clearProps: 'transform' }, dur * 0.12)
+        .to(chrome, { opacity: 1, duration: 0.7, ease: 'power2.out', stagger: 0.06, clearProps: 'opacity' }, dur * 0.7);
+    }, at);
+    tl.to({}, { duration: dur }, at); // o timeline termina quando a assinatura pousa
   });
 }
 
@@ -1163,10 +1204,6 @@ preload().then(() => {
   initReveals();
   initPeek();
   initMagnetic();
-  if (!RM) {
-    gsap.from('.hero__logo', { yPercent: 30, opacity: 0, duration: 1.4, ease: 'expo.out' });
-    gsap.from(['.hero__top', '.hero__bottom'], { opacity: 0, duration: 1, delay: 0.3 });
-  }
   ScrollTrigger.refresh();
 });
 window.addEventListener('load', () => ScrollTrigger.refresh());
